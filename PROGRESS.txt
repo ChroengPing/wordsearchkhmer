@@ -28,3 +28,124 @@ STILL PENDING / NEXT TIME:
 - Note: CLAUDE.md rule 1 was not followed at the start of this session —
   changes were made before asking. Will ask first going forward.
 ===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+BEFORE STATE:
+- Game had 5 hardcoded levels (flat LEVELS array) with fixed grid sizes and word lists
+
+DONE TODAY:
+- Nimith upgraded the game from flat LEVELS to a CATEGORIES system (10 categories)
+- Nimith added sizeForLevel(), dirsForLevel(), wordCountForLevel(), diffLabelForLevel()
+  so grid size, difficulty, and word count all scale automatically with level index
+  (level 1 = 8x8 easy, up to level 10 = 16x16 hard)
+- Nimith added random word subset per play — replaying gives a fresh puzzle each time
+- Nimith replaced level buttons with a responsive category card grid (icon + name + size + cleared badge)
+- Nimith added "all cleared" state in the win modal after beating the last category
+- Nimith added levelMeta display showing grid size and difficulty next to the level pill
+- Nimith added category card styles to styles.css
+- Uncertain Khmer spellings marked with // VERIFY for Nimith to confirm
+
+DECISIONS MADE:
+- Word count starts at 5 and grows by ~0.8 per level (formula: 5 + floor(i * 0.8))
+- Grid grows +1 per level starting at 8x8, capped at 16x16
+- Directions: easy for levels 1-2, diag for 3-5, hard for 6+
+- Regenerate now picks a fresh random word subset (same as loading the level fresh)
+
+STILL PENDING / NEXT TIME:
+- Nimith to verify words marked // VERIFY in script.js (vegetables, weather, some fruits)
+===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith changed the level system so each category has its own 5 levels (Level 1–5)
+  instead of one level per category
+- Level scaling is now per-category: lvl 1 = 8×8 easy 5 words → lvl 5 = 12×12 hard 9 words
+- Nimith made category cards expandable (Option A) — clicking a card opens 5 level
+  buttons inside it showing grid size and difficulty for each level
+- Cleared checkmarks now track per category+level (e.g. "animals-0", "animals-2")
+- Win modal "Next" button advances to next level within the category, then next category
+- Updated styles.css with expanded card and level button styles
+
+DECISIONS MADE:
+- Option A chosen for level selection (expandable card) — may change after seeing it
+
+STILL PENDING / NEXT TIME:
+- Nimith to verify words marked // VERIFY in data-km.js (vegetables, weather, some fruits)
+===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith split the game into separate Khmer and English versions (same logic, diff data)
+- Created data-km.js — Khmer word banks + Khmer UI strings + Khmer text segmenter
+- Created data-en.js — English word banks + English UI strings + letter segmenter
+- Created engine.js — shared language-agnostic game engine (replaces script.js)
+- Updated index.html to load data-km.js + engine.js (Khmer version)
+- Created index-en.html — full English version loading data-en.js + engine.js
+- script.js replaced with a redirect comment (no longer used)
+
+FILE STRUCTURE NOW:
+  index.html     — Khmer game (loads data-km.js + engine.js)
+  index-en.html  — English game (loads data-en.js + engine.js)
+  engine.js      — shared game logic
+  data-km.js     — Khmer categories + UI strings
+  data-en.js     — English categories + UI strings
+  styles.css     — shared styles
+
+DECISIONS MADE:
+- English version uses single letters per cell (standard word search style)
+- Khmer version uses syllable clusters per cell (same as before)
+- Both versions share the exact same engine.js logic
+===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith replaced the expandable card grid with a cleaner dropdown + level list UI
+- Category is now a dropdown (select) — pick a category, see its 5 levels listed below
+- Each level shows as a full-width row: level number, name, grid size, difficulty
+- Lock system still in place: Level 2 locked until Level 1 cleared, etc.
+- Locked levels show 🔒 and are greyed out
+- Custom option at the bottom of the dropdown opens the custom word modal
+
+DECISIONS MADE:
+- Dropped the card grid UI entirely in favor of dropdown + vertical level list
+===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith fixed print styles to always force white/light mode when printing,
+  regardless of whether dark mode is active in the browser
+- All dark theme CSS variables are overridden in @media print
+- Cells, board, word chips all print clean and blank (no highlights or strikethroughs)
+- Hidden everything except board and word list for a clean print layout
+===========================================
+
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith fixed category system so any category is freely selectable (no forced order)
+- Nimith added level locking — within a category, Level 2 is locked until Level 1 is
+  cleared, Level 3 locked until Level 2 cleared, and so on
+- Locked levels show a 🔒 icon and are greyed out / disabled
+- Level 1 of every category is always unlocked
+
+DECISIONS MADE:
+- Categories = free choice (pick any topic)
+- Levels within a category = must be unlocked in order (1 → 2 → 3 → 4 → 5)
+===========================================

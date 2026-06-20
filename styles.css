@@ -60,21 +60,42 @@ body {
 .stat .label { font-size: .68rem; opacity: .65; text-transform: uppercase; letter-spacing: .5px; }
 .stat .value { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* ----------------------------- App shell ------------------------------ */
+/* On desktop the play area fills remaining viewport height and centers */
+.play-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+@media (min-width: 992px) {
+  .play-shell {
+    min-height: calc(100vh - var(--header-h, 140px));
+  }
+  /* Side panel fills the column height so cards don't float at top */
+  .panel-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .panel-col .card { flex: 1; }
+}
+
 /* ----------------------------- The board ------------------------------ */
 .board-wrap {
-  width: min(94vw, 560px);
+  /* Grows with available space; capped by column width, 78vh, and a hard max */
+  width: min(100%, 78vh, 680px);
   margin-inline: auto;
 }
 .board {
   aspect-ratio: 1 / 1;
   display: grid;
   gap: clamp(2px, .6vw, 5px);
-  padding: clamp(6px, 1.4vw, 12px);
+  padding: clamp(6px, 1.4vw, 14px);
   border-radius: 20px;
   background: var(--kh-board-bg);
   border: 1px solid var(--kh-cell-border);
   box-shadow: var(--kh-shadow);
-  touch-action: none;            /* we manage panning ourselves while dragging */
+  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -136,17 +157,121 @@ body {
 .muted-on { opacity:.45; }
 textarea.kh { font-family: var(--kh-font); font-size:1.1rem; }
 
-/* ---- Print styles: clean blank puzzle for solving on paper ---- */
+/* ----------------------- Action buttons under board ------------------- */
+#actionBtns {
+  margin-top: .6rem !important;
+  gap: .4rem !important;
+  flex-wrap: wrap;
+}
+#actionBtns .btn { font-size: .82rem; padding: .38rem .72rem; min-height: 36px; }
+
+/* Stat bar — tighter on mobile */
+@media (max-width: 575px) {
+  .stat { min-width: 68px; padding: .35rem .5rem; }
+  .stat .value { font-size: 1.05rem; }
+}
+
+/* Mobile: board fills width, stays square */
+@media (max-width: 991px) {
+  .board-wrap { width: min(94vw, 90vh); }
+}
+
+/* ------------------------- Category dropdown + level buttons ------------------------- */
+.level-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.lvl-btn {
+  position: relative;
+  display: flex; align-items: center; gap: .75rem;
+  width: 100%;
+  min-height: 48px;       /* consistent tap target & visual height */
+  padding: .55rem .85rem;
+  border-radius: 12px; border: 1px solid var(--bs-border-color);
+  background: var(--bs-tertiary-bg); cursor: pointer; text-align: left;
+  transition: background .12s, border-color .12s, transform .1s;
+}
+.lvl-btn:hover:not(:disabled) { background: var(--kh-cell-bg-hover); transform: translateX(3px); }
+.lvl-btn.active  { border-color: var(--kh-accent); background: color-mix(in srgb, var(--kh-accent) 12%, transparent); }
+.lvl-btn.cleared { border-color: var(--kh-found); }
+.lvl-btn.locked  { opacity: .4; cursor: not-allowed; }
+.lvl-btn.locked:hover { transform: none; }
+
+.lvl-num   { font-size: 1.1rem; font-weight: 700; min-width: 24px; text-align: center; }
+.lvl-label { font-size: .88rem; font-weight: 600; flex: 1; }
+.lvl-sub   { font-size: .7rem; opacity: .55; font-family: system-ui, sans-serif; }
+.lvl-check { font-size: .75rem; color: var(--kh-found); font-weight: 700; margin-left: auto; }
+
+/* ---- Print styles: always white, regardless of dark/light mode ---- */
 @media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  @page { margin: 1.2cm; }
-  body { background: white !important; }
-  #confetti, #headerBtns, #statChips, #actionBtns, #levelCard, footer { display: none !important; }
-  .container { max-width: 100% !important; padding: 0 !important; }
-  .board { box-shadow: none !important; border: 1px solid #bbb !important; }
-  /* Reset game highlights so the puzzle prints blank */
-  .cell.found, .cell.found.multi { background: #f4f6fb !important; color: #243049 !important; transform: none !important; }
-  .cell.hint { box-shadow: none !important; animation: none !important; }
-  .cell.selecting { background: #f4f6fb !important; color: #243049 !important; transform: none !important; }
-  .word-chip.done { background: #f0f2f8 !important; border-color: #dfe4ee !important; text-decoration: none !important; opacity: 1 !important; }
+  @page { margin: 1.5cm; }
+
+  /* Force all theme tokens to light values */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  :root, [data-bs-theme="dark"] {
+    --kh-board-bg:      #ffffff !important;
+    --kh-cell-bg:       #f4f6fb !important;
+    --kh-cell-bg-hover: #f4f6fb !important;
+    --kh-cell-border:   #dfe4ee !important;
+    --kh-cell-ink:      #243049 !important;
+    --kh-found:         #34c38f !important;
+    --kh-found-ink:     #06301f !important;
+    --kh-shadow:        none    !important;
+    --bs-body-bg:       #ffffff !important;
+    --bs-body-color:    #243049 !important;
+    --bs-border-color:  #dfe4ee !important;
+    --bs-tertiary-bg:   #f4f6fb !important;
+  }
+
+  /* Hide everything except the board and word list */
+  #confetti, #headerBtns, #statChips, #actionBtns,
+  #levelCard, footer, .level-pill, #levelMeta { display: none !important; }
+
+  /* Make level name visible and plain */
+  #levelName { color: #555 !important; font-size: .85rem !important; }
+
+  body        { background: #fff !important; color: #243049 !important; }
+  .container  { max-width: 100% !important; padding: 0 !important; }
+
+  /* Board */
+  .board {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    width: min(90vw, 90vh) !important;
+    margin-inline: auto !important;
+  }
+
+  /* All cells print clean and blank */
+  .cell {
+    background: #f4f6fb !important;
+    color: #243049 !important;
+    border-radius: 6px !important;
+    transform: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+  .cell.found, .cell.found.multi,
+  .cell.selecting, .cell.hint { background: #f4f6fb !important; color: #243049 !important; }
+
+  /* Word chips — print as clean pills, no strikethrough */
+  .word-chip {
+    background: #f4f6fb !important;
+    border-color: #dfe4ee !important;
+    color: #243049 !important;
+  }
+  .word-chip.done {
+    background: #f4f6fb !important;
+    border-color: #dfe4ee !important;
+    text-decoration: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Cards */
+  .card { background: #fff !important; border: 1px solid #dfe4ee !important; box-shadow: none !important; }
 }

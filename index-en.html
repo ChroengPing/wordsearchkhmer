@@ -1,21 +1,11 @@
 <!DOCTYPE html>
-<html lang="km" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>ល្បែងរកពាក្យខ្មែរ · Khmer Word Search</title>
+<title>Word Search Game</title>
 
-<!-- Bootstrap 5.3 (CDN) -->
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
-  rel="stylesheet" />
-<!-- Noto Sans Khmer (CDN) with graceful fallback to system Khmer fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Kantumruy+Pro:wght@500;700&display=swap"
-  rel="stylesheet" />
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -24,66 +14,66 @@
 
 <div class="container py-3 py-md-4" style="max-width: 1080px;">
 
-  <!-- ============================== HEADER ============================== -->
+  <!-- HEADER -->
   <header class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div>
       <h1 class="brand-title h3 mb-0">
-        <span class="brand-accent">ល្បែង</span>រកពាក្យខ្មែរ
+        <span class="brand-accent">Word</span> Search Game
       </h1>
-      <small class="text-secondary">Khmer Word Search · drag across the letters to find each word</small>
+      <small class="text-secondary">Drag across the letters to find each word</small>
     </div>
     <div id="headerBtns" class="d-flex align-items-center gap-2">
-      <a href="index-en.html" class="btn btn-outline-secondary icon-btn" title="Switch to English">🇬🇧</a>
+      <a href="index.html" class="btn btn-outline-secondary icon-btn" title="Switch to Khmer">🇰🇭</a>
       <button id="btnSound" class="btn btn-outline-secondary icon-btn" title="Sound on/off" aria-label="Toggle sound">🔊</button>
       <button id="btnTheme" class="btn btn-outline-secondary icon-btn" title="Light/Dark" aria-label="Toggle theme">☀️</button>
       <button id="btnCustom" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#customModal">
-        ✏️ <span class="d-none d-sm-inline">ពាក្យផ្ទាល់ខ្លួន</span>
+        ✏️ <span class="d-none d-sm-inline">Custom Words</span>
       </button>
     </div>
   </header>
 
-  <!-- ============================ STAT BAR ============================= -->
+  <!-- STAT BAR -->
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <span class="level-pill" id="levelPill">កម្រិត ១</span>
-      <span class="text-secondary small" id="levelName">សត្វ · Animals</span>
+      <span class="level-pill" id="levelPill">Level 1</span>
+      <span class="text-secondary small" id="levelName">Animals</span>
       <span class="text-secondary small" id="levelMeta"></span>
     </div>
     <div id="statChips" class="d-flex gap-2">
-      <div class="stat"><span class="label">ពិន្ទុ Score</span><span class="value" id="statScore">0</span></div>
-      <div class="stat"><span class="label">ពេល Time</span><span class="value" id="statTime">0:00</span></div>
-      <div class="stat"><span class="label">រកឃើញ Found</span><span class="value" id="statFound">0/0</span></div>
+      <div class="stat"><span class="label">Score</span><span class="value" id="statScore">0</span></div>
+      <div class="stat"><span class="label">Time</span><span class="value" id="statTime">0:00</span></div>
+      <div class="stat"><span class="label">Found</span><span class="value" id="statFound">0/0</span></div>
     </div>
   </div>
 
   <div class="play-shell">
   <div class="row g-4 align-items-center w-100">
-    <!-- ============================== BOARD ============================= -->
+    <!-- BOARD -->
     <div class="col-12 col-lg-7 order-1">
       <div class="board-wrap">
         <div id="board" class="board" role="grid" aria-label="Word search grid"></div>
       </div>
       <div id="actionBtns" class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-        <button id="btnHint"  class="btn btn-outline-primary">💡 ជំនួយ Hint <span class="badge text-bg-primary" id="hintCount">3</span></button>
-        <button id="btnShuffle" class="btn btn-outline-secondary">🔀 ច្របល់ Regen</button>
-        <button id="btnReset" class="btn btn-outline-danger">↺ ចាប់ថ្មី Restart</button>
+        <button id="btnHint" class="btn btn-outline-primary">💡 Hint <span class="badge text-bg-primary" id="hintCount">3</span></button>
+        <button id="btnShuffle" class="btn btn-outline-secondary">🔀 Regenerate</button>
+        <button id="btnReset" class="btn btn-outline-danger">↺ Restart</button>
         <button id="btnDownload" class="btn btn-outline-success">📥 Image</button>
         <button id="btnPrint" class="btn btn-outline-secondary">🖨️ Print</button>
       </div>
     </div>
 
-    <!-- =========================== SIDE PANEL ========================== -->
+    <!-- SIDE PANEL -->
     <div class="col-12 col-lg-5 order-2 panel-col">
       <div class="card border-0 shadow-sm" style="border-radius:18px;">
         <div class="card-body">
-          <h2 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing:.5px;">ពាក្យត្រូវរក · Words to find</h2>
+          <h2 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing:.5px;">Words to Find</h2>
           <div id="wordlist" class="wordlist"></div>
         </div>
       </div>
 
       <div id="levelCard" class="card border-0 shadow-sm" style="border-radius:18px;">
         <div class="card-body">
-          <h2 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing:.5px;">ប្រភេទ · Categories</h2>
+          <h2 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing:.5px;">Categories</h2>
           <select id="categorySelect" class="form-select mb-3"></select>
           <div id="levelButtons" class="level-btn-row"></div>
         </div>
@@ -93,7 +83,7 @@
   </div>
 
   <footer class="text-center text-secondary small mt-4">
-    រាល់ប្រអប់មួយ = អក្សរខ្មែរមួយ (ព្យាង្គ) · each cell is one Khmer cluster.
+    Each cell is one letter · drag to select words.
     Built with Bootstrap 5 + vanilla JS.
     <div class="mt-2" style="border-top: 1px solid var(--bs-border-color); padding-top: .6rem;">
       Designed &amp; Developed by
@@ -106,27 +96,25 @@
   </footer>
 </div>
 
-<!-- ====================== CUSTOM WORD LIST MODAL ====================== -->
+<!-- CUSTOM WORDS MODAL -->
 <div class="modal fade" id="customModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border-radius:18px;">
       <div class="modal-header">
-        <h5 class="modal-title">✏️ បញ្ជីពាក្យផ្ទាល់ខ្លួន · Custom words</h5>
+        <h5 class="modal-title">✏️ Custom Word List</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <p class="text-secondary small mb-2">
-          វាយពាក្យខ្មែរ មួយពាក្យក្នុងមួយជួរ (ឬបំបែកដោយ comma)។ ពាក្យ​ដែល​មាន​ត្រឹម​មួយ​ព្យាង្គ​នឹង​ត្រូវ​រំលង។<br>
-          One Khmer word per line (or comma-separated). Single-cluster words are skipped.
+          Enter one word per line (or comma-separated). Words shorter than 2 letters are skipped.
         </p>
-        <textarea id="customInput" class="form-control kh" rows="6"
-          placeholder="ឆ្មាខ្លាឃ្មុំ&#10;ផ្ទះល្វែង&#10;កុំព្យូទ័រ&#10;ទូរស័ព្ទ"></textarea>
-
+        <textarea id="customInput" class="form-control" rows="6"
+          placeholder="elephant&#10;butterfly&#10;computer&#10;telephone"></textarea>
         <div class="row g-2 mt-2">
           <div class="col-6">
-            <label class="form-label small mb-1">ទំហំក្ដារ Grid size</label>
+            <label class="form-label small mb-1">Grid Size</label>
             <select id="customSize" class="form-select form-select-sm">
-              <option value="0">ស្វ័យប្រវត្តិ Auto</option>
+              <option value="0">Auto</option>
               <option value="8">8 × 8</option>
               <option value="10">10 × 10</option>
               <option value="12">12 × 12</option>
@@ -134,50 +122,49 @@
             </select>
           </div>
           <div class="col-6">
-            <label class="form-label small mb-1">ទិសដៅ Directions</label>
+            <label class="form-label small mb-1">Directions</label>
             <select id="customDirs" class="form-select form-select-sm">
-              <option value="easy">ផ្ដេក + បញ្ឈរ (H + V)</option>
-              <option value="diag">+ ទ្រេត (+ diagonal)</option>
-              <option value="hard" selected>គ្រប់ទិស + បញ្ច្រាស (all + reverse)</option>
+              <option value="easy">Horizontal + Vertical</option>
+              <option value="diag">+ Diagonal</option>
+              <option value="hard" selected>All + Reverse</option>
             </select>
           </div>
         </div>
         <div id="customError" class="text-danger small mt-2"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បោះបង់ Cancel</button>
-        <button type="button" id="btnPlayCustom" class="btn btn-accent" data-bs-dismiss="modal">▶ លេង Play</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btnPlayCustom" class="btn btn-accent" data-bs-dismiss="modal">▶ Play</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ========================== WIN MODAL ============================ -->
+<!-- WIN MODAL -->
 <div class="modal fade" id="winModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center" style="border-radius:18px;">
       <div class="modal-body p-4">
         <div style="font-size:3rem;">🎉</div>
-        <h3 class="mb-1">សម្រេច! Level complete</h3>
-        <p class="text-secondary mb-3" id="winSub">អ្នករកឃើញពាក្យទាំងអស់!</p>
+        <h3 class="mb-1">Level Complete!</h3>
+        <p class="text-secondary mb-3" id="winSub">You found all the words!</p>
         <div class="d-flex justify-content-center gap-3 mb-3">
           <div class="stat"><span class="label">Time</span><span class="value" id="winTime">0:00</span></div>
           <div class="stat"><span class="label">Score</span><span class="value" id="winScore">0</span></div>
           <div class="stat"><span class="label">Bonus</span><span class="value" id="winBonus">0</span></div>
         </div>
         <div class="d-flex justify-content-center gap-2">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal" id="winReplay">↺ លេងម្ដងទៀត</button>
-          <button class="btn btn-accent" data-bs-dismiss="modal" id="winNext">▶ កម្រិតបន្ទាប់</button>
-          <button class="btn btn-accent hidden" data-bs-dismiss="modal" id="winAllCleared">🎊 បានឈ្នះទាំងអស់!</button>
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal" id="winReplay">↺ Play Again</button>
+          <button class="btn btn-accent" data-bs-dismiss="modal" id="winNext">▶ Next Level</button>
+          <button class="btn btn-accent hidden" data-bs-dismiss="modal" id="winAllCleared">🎊 All Cleared!</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Bootstrap bundle (CDN) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-<script src="data-km.js"></script>
+<script src="data-en.js"></script>
 <script src="engine.js"></script>
 </body>
 </html>
