@@ -1,0 +1,30 @@
+===========================================
+DATE: 2026-06-20
+CHANGED BY: Nimith
+-------------------------------------------
+BEFORE STATE:
+- Project had only one file: index.html (all HTML, CSS, and JS in one place)
+
+DONE TODAY:
+- Nimith split the single index.html into three separate files to make editing easier:
+    index.html  — HTML structure only
+    styles.css  — all CSS (theme tokens, board, animations, print styles)
+    script.js   — full game engine (KhmerText, LEVELS, Sound, Puzzle, Game, UI wiring)
+- Nimith set dark mode as the default (data-bs-theme="dark" on <html>)
+- Nimith updated theme toggle button to show sun icon on load since we start in dark mode
+- Nimith added his name to the footer next to Chroeng Ping
+- Nimith created README.md with project overview, file structure, how to run, how to edit levels
+- Nimith created PROGRESS.txt (this file)
+- Nimith added rule 8 to CLAUDE.md for tracking who makes changes per session
+- Read CLAUDE.md and secure-coding-guide.md
+
+DECISIONS MADE:
+- Dark mode is now the default to be easier on the eyes
+- Three-file structure going forward — do not inline CSS or JS back into index.html
+- Nimith and Chroeng Ping are both credited as co-developers
+
+STILL PENDING / NEXT TIME:
+- Nothing pending from this session
+- Note: CLAUDE.md rule 1 was not followed at the start of this session —
+  changes were made before asking. Will ask first going forward.
+===========================================
