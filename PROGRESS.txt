@@ -80,6 +80,36 @@ STILL PENDING / NEXT TIME:
 ===========================================
 
 ===========================================
+DATE: 2026-06-21
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith merged features from khmer-wordsearch-redesigned.html into the main codebase
+- Added progress bar (green fill, shows words found / total)
+- Added coins 🪙 — earned per syllable cluster/letter when a word is found
+- Added streak multiplier 🔥 — consecutive finds boost score (×2, ×3...)
+- Wrong guess or hint use resets the streak to 0
+- Added floating score popup (+100, +200 ×2) that animates upward from the board
+- Win modal redesigned: 3 star rating, tiles layout, XP bar, reward badge, coins earned
+- Stars based on speed (fast clear) + hints (no hints used)
+- Reward badges cycle per level: Bronze → Category → Silver → Speed → Gold → Crown
+- Added ❓ Help button in header — shows "How to play" modal on first load and on demand
+- Replaced mouse + touch input with cleaner Pointer Events API (covers all devices)
+- English word banks updated with easy/medium/hard mixed difficulty words
+- Layout polish: board scales to viewport height, play-shell fills screen on desktop
+- Applied to both index.html (Khmer) and index-en.html (English)
+
+DECISIONS MADE:
+- Streak multiplier: 1+streak before incrementing (first word = ×1, second in row = ×2)
+- Coins = number of cells (clusters for Khmer, letters for English) per found word
+- 3 stars = fast AND no hints; 2 stars = one of those; 1 star = neither
+
+STILL PENDING / NEXT TIME:
+- Nimith to verify Khmer words marked // VERIFY in data-km.js
+- Admin login screen (was asked about, questions not answered yet)
+===========================================
+
+===========================================
 DATE: 2026-06-20
 CHANGED BY: Nimith
 -------------------------------------------
@@ -148,4 +178,144 @@ DONE TODAY:
 DECISIONS MADE:
 - Categories = free choice (pick any topic)
 - Levels within a category = must be unlocked in order (1 → 2 → 3 → 4 → 5)
+===========================================
+
+===========================================
+DATE: 2026-06-22
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith moved the stat block (level pill, score/time/coins/streak, category and level
+  selects, progress bar) and the "Words to find" card into a dedicated right sidebar column
+- Nimith restructured both index.html and index-en.html into a proper two-column layout:
+    LEFT col  (col-lg-7): board + action buttons
+    RIGHT col (col-lg-5): stat bar + selects + progress + word list card
+- On mobile the sidebar column (order-1) stacks above the board (order-2), so words and
+  stats are visible without scrolling — same as before
+- Nimith removed the dead-gap CSS that was centering the board vertically:
+    Removed  justify-content: center  from .play-shell
+    Removed  min-height: calc(100vh - var(--header-h, 140px))  from .play-shell desktop rule
+- Nimith made the board slightly larger on desktop:
+    .board-wrap width changed from min(100%, 78vh, 680px) to min(100%, 86vh, 720px)
+- Nimith added admin login system (admin/123 stored in admin.json):
+    Logging in as admin unlocks all levels in every category
+    Admin button shows 👑 when logged in; clicking again logs out and re-locks levels
+- Nimith fixed admin login comparison to be case-insensitive for the username field
+
+DECISIONS MADE:
+- Right sidebar approach chosen (sidebar next to board) over full-width word bar above board
+- Mobile layout unchanged — sidebar still floats above the board on small screens
+- admin.json is deliberately not committed to git (sensitive) — use .gitignore
+
+STILL PENDING / NEXT TIME:
+- Verify Khmer words marked // VERIFY in data-km.js
+- Confirm .gitignore is set up to exclude admin.json
+===========================================
+
+===========================================
+DATE: 2026-06-22
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith created home.html — a Khmer-first dashboard/landing page that serves as the
+  main entry point for the game
+- home.html shows all 10 categories as cards, each displaying:
+    icon, Khmer name + English subtitle
+    5 level dots (one per level) showing stars earned: ⭐/⭐⭐/⭐⭐⭐ or 🔒 if locked
+    progress bar + label (X/5 levels · ⭐ X/15)
+    Play button that opens the game at that specific category
+- home.html shows a summary strip at top: total stars / levels cleared / categories done
+- "Continue Playing" button resumes the last played category
+- "Reset all progress" button in footer (subtle) clears localStorage for both languages
+- Nimith added localStorage persistence to engine.js so progress survives page refresh:
+    ws_cleared_km / ws_cleared_en — Set of cleared level keys (e.g. "animals-0")
+    ws_stars_km   / ws_stars_en   — best stars per level key (1/2/3)
+    ws_lastCat_km / ws_lastCat_en — last played category id
+- Nimith fixed the help popup to only show on first ever visit (was showing every load)
+- Nimith added theme persistence to localStorage (ws_theme) so dark/light is remembered
+  across home.html and both game pages
+- Nimith added 🏠 Home button to both index.html and index-en.html headers
+- Nimith fixed word chip strip: added flex-shrink: 0 + white-space: nowrap to .word-chip
+  so chips never shrink to circles — the strip scrolls horizontally instead
+
+DECISIONS MADE:
+- home.html is the main entry point; players open the app from home.html
+- Khmer-first: home.html shows Khmer category names with English subtitle below
+- English players use index-en.html directly (🇬🇧 link in home header)
+- Session handoff via sessionStorage('ws_startCat') — set by home, read by engine.js
+- Stars keep the best run (re-doing a level doesn't lower your star count)
+- Admin progress is separate from regular localStorage (admin just unlocks in-memory)
+
+STILL PENDING / NEXT TIME:
+- Verify Khmer words marked // VERIFY in data-km.js
+- Set up .gitignore to exclude admin.json
+===========================================
+
+===========================================
+DATE: 2026-06-22
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY:
+- Nimith converted the entire project from vanilla HTML/CSS/JS to Vite + React
+- Created package.json with React 18, React Router v6, Bootstrap 5 npm packages
+- Created vite.config.js with base: './' for GitHub Pages compatibility
+- Created new index.html as Vite entry point (replaces the old game index.html)
+- Moved admin.json to public/ directory (required for Vite's static file serving)
+- Created .gitignore — excludes node_modules/, dist/, admin.json, public/admin.json
+- Created all React source files under src/:
+    src/main.jsx       — app entry: ReactDOM.createRoot, HashRouter, Bootstrap CSS import
+    src/App.jsx        — routes: / (Home), /play/km (Khmer), /play/en (English)
+    src/app.css        — all game CSS, adapted from styles.css
+    src/data/lang-km.js — Khmer language data (CATEGORIES + GameLang) as ES module
+    src/data/lang-en.js — English language data as ES module
+    src/engine/puzzle.js — puzzle generator (extracted from engine.js, made pure)
+    src/engine/sound.js  — web audio sound module (extracted from engine.js)
+    src/hooks/useGame.js — React game state via useReducer (replaces Game IIFE)
+    src/components/GameBoard.jsx  — interactive word search grid with pointer drag
+    src/components/GamePage.jsx   — main game layout (two-column, all modals wired)
+    src/components/HomePage.jsx   — dashboard with category cards and progress display
+    src/components/WinModal.jsx   — level complete screen with stars/XP/reward
+    src/components/HelpModal.jsx  — how to play instructions
+    src/components/AdminModal.jsx — admin login form (fetches admin.json)
+    src/components/CustomModal.jsx — custom word list entry
+- Build confirmed working: npm run build produces dist/ with no errors
+- Dev server confirmed: npm run dev starts on http://localhost:5173/
+
+FILE STRUCTURE NOW (old .html/.js files still present but no longer used):
+  index.html    — Vite entry point (replaced old Khmer game HTML)
+  package.json  — npm scripts: dev / build / preview
+  vite.config.js
+  .gitignore
+  public/admin.json
+  src/...       — all React source
+
+DECISIONS MADE:
+- Used HashRouter so GitHub Pages works without server-side config (URLs use #/play/km)
+- Used useReducer for game state so found-word + win logic runs atomically in one action
+- Confetti rendered as React state (array of bits), no external library
+- Modals use React conditional rendering + Bootstrap CSS (no Bootstrap JS needed)
+- Admin login uses fetch('./admin.json') same as before
+- base: './' in vite.config.js makes asset paths relative for subdirectory GitHub Pages
+
+HOW TO RUN:
+  npm run dev     → start dev server at localhost:5173
+  npm run build   → build to dist/
+  npm run preview → preview the production build
+
+- Nimith created .github/workflows/deploy.yml — GitHub Actions workflow that:
+    runs on every push to main, installs deps, runs npm run build,
+    then deploys dist/ to GitHub Pages automatically
+- Created .gitignore — excludes node_modules/, dist/, admin.json, public/admin.json
+
+TO ACTIVATE GITHUB PAGES DEPLOY:
+  1. GitHub repo → Settings → Pages → Source → change to "GitHub Actions"
+  2. git add . && git commit -m "..." && git push
+  After that, every push auto-builds and deploys. Watch progress under Actions tab.
+
+STILL PENDING / NEXT TIME:
+- Nimith needs to enable GitHub Pages source = "GitHub Actions" in repo settings (one-time step)
+- Fix PowerShell execution policy to run npm locally: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+- Verify Khmer words marked // VERIFY in src/data/lang-km.js
+- Old files (home.html, index-en.html, engine.js, data-km.js, data-en.js, styles.css, script.js)
+  can be deleted once React version is confirmed working on GitHub Pages
 ===========================================

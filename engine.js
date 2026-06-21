@@ -115,8 +115,28 @@ const Game = (() => {
   let puzzle = null, foundSet = new Set(), clearedSet = new Set();
   let cellEls = [], dragging = false, startRC = null, currentPath = [];
   let hintsLeft = 3, score = 0, timerId = null, seconds = 0, finished = false;
+  let coins = 0, streak = 0, bestStreak = 0;
+  let isAdmin = false;
+
+  const CLEARED_KEY = 'ws_cleared_' + GameLang.id;
+  const STARS_KEY   = 'ws_stars_'   + GameLang.id;
+  let starsMap = {};
+  try {
+    const _sc = localStorage.getItem(CLEARED_KEY);
+    if (_sc) clearedSet = new Set(JSON.parse(_sc));
+    const _sm = localStorage.getItem(STARS_KEY);
+    if (_sm) starsMap = JSON.parse(_sm);
+  } catch(e) {}
 
   const SCORE_PER_WORD = 100, HINT_PENALTY = 20;
+  const REWARDS = [
+    { icon: "🥉", label: "Bronze badge" },
+    { icon: "🎨", label: "Category unlocked" },
+    { icon: "🥈", label: "Silver badge" },
+    { icon: "⚡", label: "Speed solver" },
+    { icon: "🥇", label: "Gold badge" },
+    { icon: "👑", label: "Word master" },
+  ];
 
   function shuffle(a) {
     const b = [...a];
@@ -132,6 +152,7 @@ const Game = (() => {
 
   function load(catIdx, lvl = 0) {
     categoryIndex = catIdx; levelIndex = lvl;
+    if (catIdx >= 0) try { localStorage.setItem('ws_lastCat_' + GameLang.id, CATEGORIES[catIdx].id); } catch(e) {}
     const cat   = CATEGORIES[catIdx];
     const size  = sizeForLevel(lvl);
     const dirs  = dirsForLevel(lvl);
@@ -143,14 +164,16 @@ const Game = (() => {
     puzzle = Puzzle.generate(words, size, dirs);
 
     foundSet = new Set(); hintsLeft = 3; score = 0; seconds = 0; finished = false;
+    coins = 0; streak = 0; bestStreak = 0;
     stopTimer(); startTimer();
 
     renderBoard(); renderWordList(); updateStats();
 
-    $("levelPill").textContent = GameLang.ui.levelPrefix + (lvl + 1);
+    $("levelPill").textContent = GameLang.ui.levelLabel(lvl + 1);
     $("levelName").textContent = cat.icon + " " + cat.name + (cat.en ? " · " + cat.en : "");
     $("levelMeta").textContent = size + "×" + size + " · " + diff;
     $("hintCount").textContent = hintsLeft;
+
     renderCategoryMap();
   }
 
@@ -180,21 +203,41 @@ const Game = (() => {
   }
 
   function renderWordList() {
-    const wrap = $("wordlist"); wrap.innerHTML = "";
-    puzzle.placements.forEach(p => {
-      const chip = document.createElement("span");
-      chip.className = "word-chip" + (foundSet.has(p.kh) ? " done" : "");
-      chip.dataset.kh = p.kh;
-      chip.innerHTML = `<span class="kh">${p.kh}</span>` + (p.en ? `<span class="en">${p.en}</span>` : "");
-      wrap.appendChild(chip);
-    });
+    const frag = () => {
+      const f = document.createDocumentFragment();
+      puzzle.placements.forEach(p => {
+        const chip = document.createElement("span");
+        chip.className = "word-chip" + (foundSet.has(p.kh) ? " done" : "");
+        chip.dataset.kh = p.kh;
+        chip.innerHTML = `<span class="kh">${p.kh}</span>` + (p.en ? `<span class="en">${p.en}</span>` : "");
+        f.appendChild(chip);
+      });
+      return f;
+    };
+    const wrap = $("wordlist");  if (wrap) { wrap.innerHTML = ""; wrap.appendChild(frag()); }
+    const mwrap = $("mobileWordlist"); if (mwrap) { mwrap.innerHTML = ""; mwrap.appendChild(frag()); }
   }
 
   function updateStats() {
+    const total = puzzle.placements.length;
     $("statScore").textContent = score;
-    $("statFound").textContent = `${foundSet.size}/${puzzle.placements.length}`;
+    $("statFound").textContent = `${foundSet.size}/${total}`;
     $("statTime").textContent  = fmt(seconds);
+    const pb = $("progBar");
+    if (pb) pb.style.width = (total ? foundSet.size / total * 100 : 0) + "%";
+    const sc = $("statCoins");  if (sc) sc.textContent = coins;
+    const ss = $("statStreak"); if (ss) ss.textContent = "×" + (1 + streak);
+    const sp = $("streakPeb");  if (sp) sp.classList.toggle("dim", streak === 0);
   }
+
+  function pushFloat(text) {
+    const el = $("floats"); if (!el) return;
+    const s = document.createElement("span");
+    s.className = "float-txt"; s.textContent = text;
+    el.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+
   const fmt = s => `${(s/60|0)}:${String(s%60).padStart(2,"0")}`;
 
   function startTimer() {
@@ -254,6 +297,7 @@ const Game = (() => {
       const fwd = p.cells.join("|"), rev = [...p.cells].reverse().join("|");
       if (seq === fwd || seq === rev) { markFound(p); return; }
     }
+    streak = 0; updateStats();
     Sound.wrong();
     GameLang.speak(GameLang.ui.wrongMsg);
     boardEl.classList.add("shake");
@@ -261,7 +305,14 @@ const Game = (() => {
   }
 
   function markFound(p) {
-    foundSet.add(p.kh); score += SCORE_PER_WORD;
+    const mult = 1 + streak;
+    const pts  = SCORE_PER_WORD * mult;
+    streak++; bestStreak = Math.max(bestStreak, streak);
+    coins += p.cells.length;
+    foundSet.add(p.kh); score += pts;
+
+    pushFloat("+" + pts + (mult > 1 ? "  ×" + mult : ""));
+
     p.path.forEach(([r,c]) => {
       const el = cellEls[r][c];
       el.classList.remove("selecting");
@@ -269,8 +320,11 @@ const Game = (() => {
       el.classList.add("found", "pop");
       setTimeout(() => el.classList.remove("pop"), 320);
     });
-    const chip = $("wordlist").querySelector(`[data-kh="${CSS.escape(p.kh)}"]`);
-    if (chip) chip.classList.add("done");
+    [$("wordlist"), $("mobileWordlist")].forEach(w => {
+      if (!w) return;
+      const chip = w.querySelector(`[data-kh="${CSS.escape(p.kh)}"]`);
+      if (chip) chip.classList.add("done");
+    });
     Sound.found();
     GameLang.speak(GameLang.ui.rightMsg);
     updateStats();
@@ -283,6 +337,7 @@ const Game = (() => {
     if (!remaining.length) return;
     const p = remaining[(Math.random() * remaining.length) | 0];
     hintsLeft--; score = Math.max(0, score - HINT_PENALTY);
+    streak = 0;
     $("hintCount").textContent = hintsLeft;
     updateStats(); Sound.hint();
     p.path.slice(0,2).forEach(([r,c]) => {
@@ -294,15 +349,49 @@ const Game = (() => {
 
   function winLevel() {
     finished = true; stopTimer();
-    const bonus = Math.max(0, 300 - seconds*2) + hintsLeft*30;
-    score += bonus; updateStats();
-    Sound.win(); confetti();
-    clearedSet.add(CATEGORIES[categoryIndex].id + "-" + levelIndex);
 
-    $("winTime").textContent  = fmt(seconds);
-    $("winScore").textContent = score;
-    $("winBonus").textContent = "+" + bonus;
-    $("winSub").textContent   = GameLang.ui.winSub(puzzle.placements.length);
+    const fast    = seconds < 25 + levelIndex * 10;
+    const noHints = hintsLeft === 3;
+    let stars = 1;
+    if (fast || noHints) stars = 2;
+    if (fast && noHints) stars = 3;
+
+    const bonus      = Math.max(0, 300 - seconds * 2) + hintsLeft * 30;
+    const coinReward = 8 + levelIndex * 2 + stars * 3;
+    score += bonus; coins += coinReward;
+    updateStats();
+    Sound.win(); confetti();
+    const _lvlKey = CATEGORIES[categoryIndex].id + "-" + levelIndex;
+    clearedSet.add(_lvlKey);
+    if ((starsMap[_lvlKey] || 0) < stars) starsMap[_lvlKey] = stars;
+    try {
+      localStorage.setItem(CLEARED_KEY, JSON.stringify([...clearedSet]));
+      localStorage.setItem(STARS_KEY, JSON.stringify(starsMap));
+    } catch(e) {}
+
+    // Stars
+    const starsEl = $("winStars");
+    if (starsEl) starsEl.innerHTML = [0,1,2].map(i =>
+      `<span class="win-star ${i < stars ? "on" : "off"}" style="animation-delay:${i*.12}s">⭐</span>`
+    ).join("");
+
+    // Tiles
+    $("winTime").textContent   = fmt(seconds);
+    $("winScore").textContent  = score;
+    const strkEl = $("winStreak"); if (strkEl) strkEl.textContent = "×" + (1 + bestStreak);
+
+    // Reward badge
+    const reward = REWARDS[Math.min(levelIndex, REWARDS.length - 1)];
+    const ri = $("winRewardIcon");    if (ri) ri.textContent = reward.icon;
+    const rl = $("winRewardLabel");   if (rl) rl.textContent = reward.label;
+    const rc = $("winCoins");         if (rc) rc.textContent = "+" + coinReward + " 🪙";
+
+    // XP bar
+    const xp = score + stars * 25;
+    const xpEl = $("winXP"); if (xpEl) xpEl.textContent = "+" + xp + " XP";
+    setTimeout(() => { const b = $("winXPBar"); if (b) b.style.width = "78%"; }, 300);
+
+    $("winSub").textContent = GameLang.ui.winSub(puzzle.placements.length);
 
     const hasNextLvl = levelIndex < 4;
     const hasNextCat = !hasNextLvl && categoryIndex < CATEGORIES.length - 1;
@@ -330,8 +419,7 @@ const Game = (() => {
   }
 
   /* ---- Category dropdown + level list ---- */
-  function renderCategoryMap() {
-    const select = $("categorySelect");
+  function buildCategoryOptions(select, onChangeFn) {
     select.innerHTML = "";
     CATEGORIES.forEach((cat, i) => {
       const opt = document.createElement("option");
@@ -343,27 +431,18 @@ const Game = (() => {
     customOpt.value = "custom";
     customOpt.textContent = "✏️ Custom";
     select.appendChild(customOpt);
-
     select.value = categoryIndex;
-    select.onchange = () => {
-      if (select.value === "custom") {
-        new bootstrap.Modal($("customModal")).show();
-        select.value = categoryIndex; return;
-      }
-      renderLevelButtons(parseInt(select.value));
-    };
-    renderLevelButtons(categoryIndex);
+    select.onchange = onChangeFn;
   }
 
-  function renderLevelButtons(catIdx) {
-    const btnRow = $("levelButtons");
-    const cat    = CATEGORIES[catIdx];
-    btnRow.innerHTML = "";
+  function buildLevelButtonsInto(container, catIdx, onLoadFn) {
+    const cat = CATEGORIES[catIdx];
+    container.innerHTML = "";
     for (let lvl = 0; lvl < 5; lvl++) {
       const size     = sizeForLevel(lvl);
       const diff     = GameLang.ui.diffLabel(lvl);
       const cleared  = clearedSet.has(cat.id + "-" + lvl);
-      const unlocked = lvl === 0 || clearedSet.has(cat.id + "-" + (lvl-1));
+      const unlocked = isAdmin || lvl === 0 || clearedSet.has(cat.id + "-" + (lvl-1));
       const active   = catIdx === categoryIndex && lvl === levelIndex;
 
       const btn = document.createElement("button");
@@ -372,9 +451,49 @@ const Game = (() => {
       btn.innerHTML = !unlocked
         ? `<span class="lvl-num">🔒</span><span class="lvl-label">${GameLang.ui.levelLabel(lvl+1)}</span><span class="lvl-sub">${size}×${size} · ${diff}</span>`
         : `<span class="lvl-num">${lvl+1}</span><span class="lvl-label">${GameLang.ui.levelLabel(lvl+1)}</span><span class="lvl-sub">${size}×${size} · ${diff}</span>${cleared ? '<span class="lvl-check">✓</span>' : ""}`;
-      btn.onclick = () => { if (unlocked) load(catIdx, lvl); };
-      btnRow.appendChild(btn);
+      btn.onclick = () => { if (unlocked) onLoadFn(catIdx, lvl); };
+      container.appendChild(btn);
     }
+  }
+
+  function renderCategoryMap() {
+    buildLevelButtonsInto($("levelButtons"), categoryIndex, load);
+
+    // Mobile inline category select
+    const mSel = $("mCatSelect");
+    if (mSel) {
+      buildCategoryOptions(mSel, () => {
+        if (mSel.value === "custom") {
+          new bootstrap.Modal($("customModal")).show();
+          mSel.value = categoryIndex; return;
+        }
+        load(parseInt(mSel.value), 0);
+      });
+    }
+
+    // Mobile inline level select
+    buildMobileLvlSelect(categoryIndex);
+  }
+
+  function buildMobileLvlSelect(catIdx) {
+    const sel = $("mLvlSelect"); if (!sel) return;
+    const cat = CATEGORIES[catIdx];
+    sel.innerHTML = "";
+    for (let lvl = 0; lvl < 5; lvl++) {
+      const unlocked = isAdmin || lvl === 0 || clearedSet.has(cat.id + "-" + (lvl - 1));
+      const cleared  = clearedSet.has(cat.id + "-" + lvl);
+      const opt = document.createElement("option");
+      opt.value = lvl;
+      opt.textContent = GameLang.ui.levelLabel(lvl + 1) + (cleared ? " ✓" : !unlocked ? " 🔒" : "");
+      opt.disabled = !unlocked;
+      sel.appendChild(opt);
+    }
+    sel.value = levelIndex;
+    sel.onchange = () => load(catIdx, parseInt(sel.value));
+  }
+
+  function renderLevelButtons(catIdx) {
+    buildLevelButtonsInto($("levelButtons"), catIdx, load);
   }
 
   return {
@@ -391,6 +510,7 @@ const Game = (() => {
       const segs = words.map(w => ({ ...w, cells: GameLang.segment(w.kh) })).filter(w => w.cells.length >= 2);
       puzzle = Puzzle.generate(segs, size, dirs);
       foundSet = new Set(); hintsLeft = 3; score = 0; seconds = 0; finished = false;
+      coins = 0; streak = 0; bestStreak = 0;
       stopTimer(); startTimer();
       renderBoard(); renderWordList(); updateStats();
       $("levelPill").textContent = "★";
@@ -399,6 +519,7 @@ const Game = (() => {
       $("hintCount").textContent = hintsLeft;
       renderCategoryMap();
     },
+    setAdmin: (v) => { isAdmin = v; renderCategoryMap(); },
     _input: { boardEl, beginDrag, moveDrag, endDrag, cellFromPoint },
   };
 })();
@@ -488,24 +609,18 @@ function downloadPuzzleImage() {
 (function wire() {
   const { boardEl, beginDrag, moveDrag, endDrag, cellFromPoint } = Game._input;
 
-  boardEl.addEventListener("mousedown", e => {
-    const el = e.target.closest(".cell"); if (el) { e.preventDefault(); beginDrag(el); }
+  // Unified pointer events (covers mouse + touch + stylus)
+  boardEl.addEventListener("pointerdown", e => {
+    const el = e.target.closest(".cell");
+    if (el) { e.preventDefault(); boardEl.setPointerCapture(e.pointerId); beginDrag(el); }
   });
-  document.addEventListener("mousemove", e => {
-    if (e.buttons) { const el = cellFromPoint(e.clientX, e.clientY); if (el) moveDrag(el); }
+  boardEl.addEventListener("pointermove", e => {
+    if (!e.buttons) return;
+    const el = cellFromPoint(e.clientX, e.clientY);
+    if (el) moveDrag(el);
   });
-  document.addEventListener("mouseup", endDrag);
-
-  boardEl.addEventListener("touchstart", e => {
-    const t=e.touches[0], el=cellFromPoint(t.clientX,t.clientY);
-    if (el) { e.preventDefault(); beginDrag(el); }
-  }, { passive: false });
-  boardEl.addEventListener("touchmove", e => {
-    const t=e.touches[0], el=cellFromPoint(t.clientX,t.clientY);
-    if (el) { e.preventDefault(); moveDrag(el); }
-  }, { passive: false });
-  document.addEventListener("touchend", endDrag);
-  document.addEventListener("touchcancel", endDrag);
+  boardEl.addEventListener("pointerup",     endDrag);
+  boardEl.addEventListener("pointercancel", endDrag);
 
   document.getElementById("btnHint").onclick     = () => Game.useHint();
   document.getElementById("btnReset").onclick    = () => Game.restart();
@@ -515,21 +630,38 @@ function downloadPuzzleImage() {
   document.getElementById("btnDownload").onclick = downloadPuzzleImage;
   document.getElementById("btnPrint").onclick    = () => window.print();
 
+  const btnHelp = document.getElementById("btnHelp");
+  if (btnHelp) btnHelp.onclick = () => new bootstrap.Modal(document.getElementById("helpModal")).show();
+
   const btnSound = document.getElementById("btnSound");
+  // Restore saved sound preference (set from home page or previous session)
+  if (localStorage.getItem('ws_sound') === '0') {
+    Sound.setEnabled(false);
+    btnSound.textContent = '🔇';
+    btnSound.classList.add('muted-on');
+  }
   btnSound.onclick = () => {
     const on = !Sound.isEnabled();
     Sound.setEnabled(on); Sound.resume();
     btnSound.textContent = on ? "🔊" : "🔇";
     btnSound.classList.toggle("muted-on", !on);
     if (on) Sound.click();
+    try { localStorage.setItem('ws_sound', on ? '1' : '0'); } catch(e) {}
   };
 
   const btnTheme = document.getElementById("btnTheme");
+  const _savedTheme = localStorage.getItem('ws_theme');
+  if (_savedTheme) {
+    document.documentElement.setAttribute('data-bs-theme', _savedTheme);
+    btnTheme.textContent = _savedTheme === 'dark' ? '☀️' : '🌙';
+  }
   btnTheme.onclick = () => {
     const html = document.documentElement;
     const dark = html.getAttribute("data-bs-theme") === "dark";
-    html.setAttribute("data-bs-theme", dark ? "light" : "dark");
+    const next = dark ? "light" : "dark";
+    html.setAttribute("data-bs-theme", next);
     btnTheme.textContent = dark ? "🌙" : "☀️";
+    try { localStorage.setItem('ws_theme', next); } catch(e) {}
   };
 
   document.getElementById("btnPlayCustom").onclick = () => {
@@ -549,9 +681,89 @@ function downloadPuzzleImage() {
     Game.playCustom(words, size, dirs);
   };
 
+  // Admin login
+  const btnAdmin = document.getElementById("btnAdmin");
+  if (btnAdmin) {
+    let adminOn = false;
+
+    // Auto-apply admin mode if logged in from home page
+    if (sessionStorage.getItem('ws_admin') === '1') {
+      adminOn = true;
+      Game.setAdmin(true);
+      btnAdmin.textContent = "👑";
+      btnAdmin.title = "Admin mode — click to logout";
+      btnAdmin.classList.remove("btn-outline-secondary");
+      btnAdmin.classList.add("btn-warning", "text-dark");
+    }
+
+    function doAdminLogin() {
+      const user = document.getElementById("adminUser").value.trim();
+      const pass = document.getElementById("adminPass").value;
+      const errEl = document.getElementById("adminError");
+      errEl.classList.add("d-none");
+      fetch("admin.json")
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(creds => {
+          if (user.toLowerCase() === creds.username.toLowerCase() && pass === creds.password) {
+            adminOn = true;
+            Game.setAdmin(true);
+            bootstrap.Modal.getInstance(document.getElementById("adminModal"))?.hide();
+            btnAdmin.textContent = "👑";
+            btnAdmin.title = "Admin mode — click to logout";
+            btnAdmin.classList.remove("btn-outline-secondary");
+            btnAdmin.classList.add("btn-warning", "text-dark");
+          } else {
+            errEl.textContent = "Wrong username or password.";
+            errEl.classList.remove("d-none");
+          }
+        })
+        .catch(() => {
+          errEl.textContent = "Could not read admin.json.";
+          errEl.classList.remove("d-none");
+        });
+    }
+
+    btnAdmin.addEventListener("click", () => {
+      if (adminOn) {
+        adminOn = false;
+        Game.setAdmin(false);
+        btnAdmin.textContent = "🔐";
+        btnAdmin.title = "Admin login";
+        btnAdmin.classList.add("btn-outline-secondary");
+        btnAdmin.classList.remove("btn-warning", "text-dark");
+      } else {
+        document.getElementById("adminUser").value = "";
+        document.getElementById("adminPass").value = "";
+        document.getElementById("adminError").classList.add("d-none");
+        new bootstrap.Modal(document.getElementById("adminModal")).show();
+      }
+    });
+
+    document.getElementById("btnAdminLogin").addEventListener("click", doAdminLogin);
+    document.getElementById("adminPass").addEventListener("keydown", e => {
+      if (e.key === "Enter") doAdminLogin();
+    });
+  }
+
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt=setTimeout(() => Game.fitFont(), 120); });
 
-  Game.load(0);
-  // Re-run fitFont after layout settles so the board-wrap final size is known
+  // Start at category passed from home.html, or default 0
+  const _sc = sessionStorage.getItem('ws_startCat');
+  if (_sc) {
+    const _idx = CATEGORIES.findIndex(c => c.id === _sc);
+    sessionStorage.removeItem('ws_startCat');
+    Game.load(_idx >= 0 ? _idx : 0, 0);
+  } else {
+    Game.load(0);
+  }
   requestAnimationFrame(() => requestAnimationFrame(() => Game.fitFont()));
+
+  // Show help only on first ever visit
+  const helpEl = document.getElementById("helpModal");
+  if (helpEl && !localStorage.getItem('ws_help_seen')) {
+    setTimeout(() => {
+      new bootstrap.Modal(helpEl).show();
+      try { localStorage.setItem('ws_help_seen', '1'); } catch(e) {}
+    }, 400);
+  }
 })();

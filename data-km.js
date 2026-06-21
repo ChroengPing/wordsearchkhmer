@@ -42,6 +42,9 @@ const GameLang = (() => {
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   }
 
+  const KHNUM = ["០","១","២","៣","៤","៥","៦","៧","៨","៩"];
+  const khNum = n => String(n).split("").map(d => KHNUM[+d] ?? d).join("");
+
   return {
     id: "km",
     segment,
@@ -49,13 +52,13 @@ const GameLang = (() => {
     speak,
     fontScale: 0.46,
     ui: {
-      levelPrefix:   "កម្រិត ",
-      levelLabel:    n => "Level " + n,
+      levelPrefix:   "",
+      levelLabel:    n => "កម្រិត " + khNum(n),
       diffLabel:     lvl => lvl < 2 ? "ងាយ · Easy" : lvl < 4 ? "មធ្យម · Medium" : "ពិបាក · Hard",
       wrongMsg:      "មិនទាន់ត្រឹមត្រូវទេ",
       rightMsg:      "ត្រឹមត្រូវ",
       winSub:        n => `រកឃើញ ${n} ពាក្យ · found all ${n} words`,
-      nextLevel:     n => `▶ កម្រិត ${n}`,
+      nextLevel:     n => `▶ កម្រិត ${khNum(n)}`,
       nextCategory:  "▶ ប្រភេទបន្ទាប់",
     },
   };

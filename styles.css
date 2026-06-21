@@ -60,30 +60,46 @@ body {
 .stat .label { font-size: .68rem; opacity: .65; text-transform: uppercase; letter-spacing: .5px; }
 .stat .value { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* Stat bar select dropdowns (category + level) */
+.stat-select {
+  appearance: auto;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 20px;
+  padding: .4rem .6rem .4rem .9rem;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--kh-font);
+  min-width: 0;
+}
+.stat-select.stat-select-sm {
+  flex-shrink: 0;
+  width: 148px;
+}
+
 /* ----------------------------- App shell ------------------------------ */
-/* On desktop the play area fills remaining viewport height and centers */
 .play-shell {
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 @media (min-width: 992px) {
-  .play-shell {
-    min-height: calc(100vh - var(--header-h, 140px));
+  /* Bigger word chips on desktop */
+  .wordlist { gap: .6rem; flex-wrap: wrap; }
+  .word-chip {
+    padding: .45rem .9rem;
+    font-size: 1rem;
+    border-radius: 14px;
   }
-  /* Side panel fills the column height so cards don't float at top */
-  .panel-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .panel-col .card { flex: 1; }
+  .word-chip .kh { font-size: 1.05rem; }
+  .word-chip .en { font-size: .75rem; }
 }
 
 /* ----------------------------- The board ------------------------------ */
 .board-wrap {
-  /* Grows with available space; capped by column width, 78vh, and a hard max */
-  width: min(100%, 78vh, 680px);
+  /* Grows with available space; capped by column width, 86vh, and a hard max */
+  width: min(100%, 86vh, 720px);
   margin-inline: auto;
 }
 .board {
@@ -131,6 +147,8 @@ body {
   padding: .35rem .7rem; border-radius: 999px;
   background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color);
   font-size: 1.05rem; transition: all .2s ease;
+  flex-shrink: 0; /* never compress chips — strip scrolls instead */
+  white-space: nowrap;
 }
 .word-chip .en { font-size: .72rem; opacity: .6; font-family: system-ui, sans-serif; }
 .word-chip.done {
@@ -157,6 +175,57 @@ body {
 .muted-on { opacity:.45; }
 textarea.kh { font-family: var(--kh-font); font-size:1.1rem; }
 
+/* ---- Progress bar ---- */
+.prog-wrap { display: flex; align-items: center; gap: .6rem; }
+.prog-track { flex: 1; height: 8px; border-radius: 999px; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); overflow: hidden; }
+#progBar { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--kh-accent-2), var(--kh-found)); width: 0; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.prog-label { font-size: .78rem; color: var(--bs-secondary-color); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 2.5rem; text-align: right; }
+
+/* ---- Pebbles (coins / streak) ---- */
+.pebble { display: inline-flex; align-items: center; gap: 5px; padding: .3rem .65rem; border-radius: 999px; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); font-size: .85rem; }
+.pebble b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pebble.coin b { color: var(--kh-select); }
+.pebble.fire b { color: var(--kh-accent); }
+.pebble.dim { opacity: .45; }
+
+/* ---- Floating score popup ---- */
+.board-wrap { position: relative; }
+#floats { position: absolute; left: 0; right: 0; top: 42%; display: flex; justify-content: center; pointer-events: none; z-index: 10; }
+.float-txt { position: absolute; font-weight: 800; font-size: 1.5rem; color: var(--kh-found); text-shadow: 0 2px 8px rgba(0,0,0,.4); font-variant-numeric: tabular-nums; animation: float-up 1s ease-out forwards; white-space: nowrap; }
+@keyframes float-up { 0%{opacity:0;transform:translateY(10px) scale(.8)} 20%{opacity:1;transform:translateY(0) scale(1.1)} 100%{opacity:0;transform:translateY(-60px) scale(1)} }
+
+/* ---- Win modal: stars ---- */
+.win-stars { font-size: 2.2rem; letter-spacing: 4px; margin-bottom: .25rem; }
+.win-star.off { filter: grayscale(1); opacity: .3; display: inline-block; transform: scale(.85); }
+.win-star.on  { display: inline-block; animation: star-pop .4s both cubic-bezier(.2,.9,.3,1.4); }
+.win-star.on:nth-child(2) { animation-delay: .12s; }
+.win-star.on:nth-child(3) { animation-delay: .24s; }
+@keyframes star-pop { from{opacity:0;transform:scale(.2) rotate(-30deg)} to{opacity:1;transform:scale(1) rotate(0)} }
+
+/* ---- Win modal: tiles ---- */
+.win-tiles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0 14px; }
+.win-tile { padding: 9px 6px; border-radius: 12px; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); }
+.win-tile span { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .5px; color: var(--bs-secondary-color); font-weight: 700; }
+.win-tile b { display: block; font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+/* ---- Win modal: XP bar ---- */
+.win-xp-track { height: 8px; border-radius: 999px; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); overflow: hidden; }
+#winXPBar { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--kh-accent-2), #34d399); width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1) .3s; }
+
+/* ---- Win modal: reward badge ---- */
+.win-reward { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--kh-select) 12%, transparent); border: 1px solid color-mix(in srgb, var(--kh-select) 40%, transparent); text-align: left; margin-bottom: 16px; }
+.win-reward .ri { font-size: 1.5rem; flex-shrink: 0; }
+.win-reward small { display: block; font-size: .62rem; text-transform: uppercase; letter-spacing: .4px; opacity: .65; }
+.win-reward b { font-size: .9rem; }
+.win-reward-coins { margin-left: auto; font-weight: 700; color: var(--kh-select); white-space: nowrap; }
+
+/* ---- Help modal steps ---- */
+.help-steps { display: flex; flex-direction: column; gap: 14px; margin: 4px 0 16px; }
+.help-step { display: flex; gap: 14px; align-items: flex-start; }
+.help-step .hi { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); font-size: 1.2rem; }
+.help-step b { display: block; font-size: .9rem; font-weight: 600; margin-bottom: 2px; }
+.help-step p { margin: 0; font-size: .78rem; color: var(--bs-secondary-color); font-family: system-ui, sans-serif; }
+
 /* ----------------------- Action buttons under board ------------------- */
 #actionBtns {
   margin-top: .6rem !important;
@@ -171,9 +240,27 @@ textarea.kh { font-family: var(--kh-font); font-size:1.1rem; }
   .stat .value { font-size: 1.05rem; }
 }
 
-/* Mobile: board fills width, stays square */
+/* Mobile word strip — always a single scrollable row (d-lg-none hides it on desktop) */
+.mobile-wordstrip {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: .4rem;
+  padding: .5rem .6rem .6rem;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 14px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.mobile-wordstrip::-webkit-scrollbar { display: none; }
+
+/* ---- Mobile layout ---- */
 @media (max-width: 991px) {
   .board-wrap { width: min(94vw, 90vh); }
+
+  /* Tighten side panel on mobile */
+  .sidebar-col .card-body { padding: .85rem; }
 }
 
 /* ------------------------- Category dropdown + level buttons ------------------------- */

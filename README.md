@@ -1,55 +1,100 @@
 # ល្បែងរកពាក្យខ្មែរ · Khmer Word Search
 
-A browser-based Khmer word search game built with Bootstrap 5 and vanilla JavaScript. No build tools or backend required — just open `index.html`.
+A browser-based Khmer and English word search game built with Vite, React, and Bootstrap 5.
 
 ## Features
 
-- Khmer orthographic cluster segmentation (one grid cell = one readable syllable)
-- 5 built-in levels: Animals, Nature, Colors, Food, School
-- Custom word list support (type your own Khmer words)
-- Drag to select words (mouse & touch)
-- Hints, scoring, and timer
-- Web Audio sound effects (no external audio files)
-- Dark mode by default, togglable light mode
-- Confetti celebration on level complete
-- Download puzzle as PNG image
-- Print-friendly layout
+- Khmer syllable cluster segmentation — one grid cell = one readable Khmer cluster
+- 10 word categories × 5 levels each (50 levels total)
+- English version at `/play/en`
+- Drag to select words (mouse, touch, and stylus via Pointer Events)
+- Stars, score, coins, streak multiplier
+- Hint system (3 hints per level)
+- Web Audio sound effects, speech synthesis
+- Confetti on level complete
+- Admin mode — unlocks all levels in-session
+- Custom word list support
+- Download puzzle as PNG, print-friendly layout
+- Dark/light theme with localStorage persistence
+- Progress saved to localStorage (stars and cleared levels survive refresh)
 
-## File Structure
+## How to Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+Opens at `http://localhost:5173`.
+
+> **Windows PowerShell note:** If you get a script execution error, run this once:
+> ```
+> Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+Output goes to `dist/`. The GitHub Actions workflow deploys this automatically on every push to `main`.
+
+## Project Structure
 
 ```
 wordsearchkhmer/
-├── index.html   — HTML structure and layout
-├── styles.css   — All CSS (theme tokens, board, animations, print styles)
-└── script.js    — Game engine (segmenter, levels, sound, puzzle generator, UI)
+├── index.html                   — Vite entry point
+├── vite.config.js
+├── package.json
+├── .gitignore
+├── .github/workflows/deploy.yml — auto-deploy to GitHub Pages
+├── public/
+│   └── admin.json               — admin credentials (not committed to git)
+└── src/
+    ├── main.jsx                 — app entry, Bootstrap import, HashRouter
+    ├── App.jsx                  — routes: / | /play/km | /play/en
+    ├── app.css                  — all game styles
+    ├── data/
+    │   ├── lang-km.js           — Khmer categories + language config
+    │   └── lang-en.js           — English categories + language config
+    ├── engine/
+    │   ├── puzzle.js            — puzzle generator
+    │   └── sound.js             — Web Audio sound module
+    ├── hooks/
+    │   └── useGame.js           — full game state (useReducer)
+    └── components/
+        ├── HomePage.jsx         — dashboard with category cards and progress
+        ├── GamePage.jsx         — two-column game layout, all modals
+        ├── GameBoard.jsx        — interactive word search grid
+        ├── WinModal.jsx         — level complete screen
+        ├── HelpModal.jsx        — how to play
+        ├── AdminModal.jsx       — admin login
+        └── CustomModal.jsx      — custom word entry
 ```
 
-## How to Run
+## Adding or Editing Words
 
-Open `index.html` directly in any modern browser. No server needed.
-
-## How to Add or Edit Levels
-
-Open [script.js](script.js) and find the `LEVELS` array near the top. Each level looks like:
+Open [src/data/lang-km.js](src/data/lang-km.js) and find the `CATEGORIES` array. Each category looks like:
 
 ```js
-{ id: 1, name: "សត្វ", en: "Animals", size: 8, dirs: "easy", words: [
-  { kh: "ដំរី", en: "elephant" },
-  { kh: "ទន្សាយ", en: "rabbit" },
+{ id: 'animals', icon: '🐘', name: 'សត្វ', en: 'Animals', words: [
+  { kh: 'ដំរី', en: 'elephant' },
+  { kh: 'ទន្សាយ', en: 'rabbit' },
 ]},
 ```
 
-- `size` — grid dimension (e.g. `8` for 8×8)
-- `dirs` — `"easy"` (horizontal + vertical), `"diag"` (+ diagonal), `"hard"` (all directions + reverse)
-- `kh` — Khmer word, `en` — English translation shown as a hint label
+Words with fewer than 2 syllable clusters are skipped automatically.
 
-## Custom Words In-Game
+## Admin Mode
 
-Click the **✏️ ពាក្យផ្ទាល់ខ្លួន** button and type one Khmer word per line. Words with only one syllable cluster are skipped automatically.
+Create a file at `public/admin.json` (not committed to git):
 
-## Theme
+```json
+{ "username": "admin", "password": "yourpassword" }
+```
 
-Defaults to **dark mode**. Click the ☀️ button in the header to switch to light mode.
+Click the 🔐 button in the header to log in. Admin mode unlocks all levels for the current session.
 
 ## Developers
 
