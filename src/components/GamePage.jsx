@@ -7,6 +7,8 @@ import WinModal from './WinModal'
 import HelpModal from './HelpModal'
 import AdminModal from './AdminModal'
 import CustomModal from './CustomModal'
+import SettingsMenu from './SettingsMenu'
+import { Lightbulb, Shuffle, RotateCcw, Download, Printer, Flame, Coins, Play } from 'lucide-react'
 
 const fmt = s => `${(s/60|0)}:${String(s%60).padStart(2,'0')}`
 
@@ -177,12 +179,10 @@ export default function GamePage({ GameLang, CATEGORIES }) {
   function handleAdminLogin() {
     setAdminOn(true)
     game.setAdmin(true)
-    try { sessionStorage.setItem('ws_admin','1') } catch(e) {}
   }
   function handleAdminLogout() {
     setAdminOn(false)
     game.setAdmin(false)
-    try { sessionStorage.removeItem('ws_admin') } catch(e) {}
   }
 
   const cat   = state.catIdx >= 0 ? CATEGORIES[state.catIdx] : { icon: '★', name: 'Custom', en: '' }
@@ -209,32 +209,23 @@ export default function GamePage({ GameLang, CATEGORIES }) {
                        : 'Drag across the letters to find each word'}
             </small>
           </div>
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <Link to="/" className="btn btn-outline-secondary icon-btn" title="Home">🏠</Link>
-            {isKhmer
-              ? <Link to="/play/en" className="btn btn-outline-secondary icon-btn" title="Switch to English">🇬🇧</Link>
-              : <Link to="/play/km" className="btn btn-outline-secondary icon-btn" title="Switch to Khmer">🇰🇭</Link>
-            }
-            <button className="btn btn-outline-secondary icon-btn" title="How to play"
-                    onClick={() => setShowHelp(true)}>❓</button>
-            <button className={`btn btn-outline-secondary icon-btn${soundOn?'':' muted-on'}`}
-                    title="Sound on/off" onClick={toggleSound}>
-              {soundOn ? '🔊' : '🔇'}
-            </button>
-            <button className="btn btn-outline-secondary icon-btn" title="Light/Dark" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <button
-              className={`btn icon-btn${adminOn ? ' btn-warning text-dark' : ' btn-outline-secondary'}`}
-              title={adminOn ? 'Admin mode — click to logout' : 'Admin login'}
-              onClick={adminOn ? handleAdminLogout : () => setShowAdmin(true)}>
-              {adminOn ? '👑' : '🔐'}
-            </button>
-            <button className="btn btn-outline-secondary" onClick={() => setShowCustom(true)}>
-              ✏️ <span className="d-none d-sm-inline">
-                {isKhmer ? 'ពាក្យផ្ទាល់ខ្លួន' : 'Custom Words'}
-              </span>
-            </button>
+          <div className="d-flex align-items-center gap-2" id="print-hide-controls">
+            <div className="lang-switch">
+              <Link to="/play/km" className={`lang-switch-opt${isKhmer ? ' active' : ''}`}>KH</Link>
+              <Link to="/play/en" className={`lang-switch-opt${!isKhmer ? ' active' : ''}`}>EN</Link>
+            </div>
+            <SettingsMenu
+              soundOn={soundOn}      onToggleSound={toggleSound}
+              theme={theme}          onToggleTheme={toggleTheme}
+              adminOn={adminOn}      onAdminClick={adminOn ? handleAdminLogout : () => setShowAdmin(true)}
+              onShowHelp={() => setShowHelp(true)}
+              onShowCustom={() => setShowCustom(true)}
+            />
+          </div>
+          {/* Print-only score box — top right */}
+          <div id="print-score-header">
+            <div className="print-score-label">{isKhmer ? 'ពិន្ទុ Score' : 'Score'}</div>
+            <div className="print-score-blank" />
           </div>
         </header>
 
@@ -263,23 +254,23 @@ export default function GamePage({ GameLang, CATEGORIES }) {
 
             {/* Action buttons */}
             <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap" id="actionBtns">
-              <button className="btn btn-outline-primary" onClick={game.useHint}
+              <button className="btn btn-outline-primary d-flex align-items-center gap-1" onClick={game.useHint}
                       disabled={state.hintsLeft <= 0 || state.finished}>
-                💡 {isKhmer ? 'ជំនួយ ' : ''}Hint{' '}
+                <Lightbulb size={16} /> {isKhmer ? 'ជំនួយ ' : ''}Hint{' '}
                 <span className="badge text-bg-primary">{state.hintsLeft}</span>
               </button>
-              <button className="btn btn-outline-secondary" onClick={game.regenerate}>
-                🔀 {isKhmer ? 'ច្របល់ ' : ''}Regen
+              <button className="btn btn-outline-secondary d-flex align-items-center gap-1" onClick={game.regenerate}>
+                <Shuffle size={16} /> {isKhmer ? 'ច្របល់ ' : ''}Regen
               </button>
-              <button className="btn btn-outline-danger" onClick={game.restart}>
-                ↺ {isKhmer ? 'ចាប់ថ្មី ' : ''}Restart
+              <button className="btn btn-outline-danger d-flex align-items-center gap-1" onClick={game.restart}>
+                <RotateCcw size={16} /> {isKhmer ? 'ចាប់ថ្មី ' : ''}Restart
               </button>
-              <button className="btn btn-outline-success"
+              <button className="btn btn-outline-success d-flex align-items-center gap-1"
                       onClick={() => downloadPuzzleImage(state.puzzle, state.foundSet, cat)}>
-                📥 Image
+                <Download size={16} /> Image
               </button>
-              <button className="btn btn-outline-secondary" onClick={() => window.print()}>
-                🖨️ Print
+              <button className="btn btn-outline-secondary d-flex align-items-center gap-1" onClick={() => window.print()}>
+                <Printer size={16} /> Print
               </button>
             </div>
           </div>
@@ -303,17 +294,17 @@ export default function GamePage({ GameLang, CATEGORIES }) {
                 {state.catIdx >= 0 ? GameLang.ui.levelLabel(state.lvlIdx + 1) : '★'}
               </span>
               <div className="d-flex gap-2 flex-wrap align-items-center">
-                <div className="stat">
+                <div className="stat" id="print-stat-score">
                   <span className="label">{isKhmer ? 'ពិន្ទុ Score' : 'Score'}</span>
                   <span className="value">{state.score}</span>
                 </div>
-                <div className="stat">
+                <div className="stat" id="print-stat-time">
                   <span className="label">{isKhmer ? 'ពេល Time' : 'Time'}</span>
                   <span className="value">{fmt(state.seconds)}</span>
                 </div>
-                <div className="pebble coin">🪙 <b>{state.coins}</b></div>
-                <div className={`pebble fire${state.streak === 0 ? ' dim' : ''}`}>
-                  🔥 <b>×{1 + state.streak}</b>
+                <div className="pebble coin" id="print-stat-coins"><Coins size={15} /> <b>{state.coins}</b></div>
+                <div className={`pebble fire${state.streak === 0 ? ' dim' : ''}`} id="print-stat-streak">
+                  <Flame size={15} /> <b>×{1 + state.streak}</b>
                 </div>
               </div>
             </div>
@@ -322,7 +313,7 @@ export default function GamePage({ GameLang, CATEGORIES }) {
             <div className="d-flex gap-2 mb-2">
               <select
                 className="stat-select flex-grow-1"
-                value={state.catIdx}
+                value={state.catIdx < 0 ? 'custom' : state.catIdx}
                 onChange={e => {
                   if (e.target.value === 'custom') { setShowCustom(true); return }
                   game.loadLevel(parseInt(e.target.value), 0)
@@ -389,6 +380,16 @@ export default function GamePage({ GameLang, CATEGORIES }) {
             <strong style={{ color:'var(--bs-body-color)' }}>Nimith</strong>
           </div>
         </footer>
+
+        {/* Print-only: category + level info and creator credit */}
+        <div className="print-credit">
+          <div className="print-credit-cat">
+            {cat.icon} {cat.name}{cat.en ? ' · ' + cat.en : ''} — {GameLang.ui.levelLabel(state.lvlIdx + 1)}
+          </div>
+          <div className="print-credit-by">
+            Designed &amp; Developed by <strong>Chroeng Ping</strong> &amp; <strong>Nimith</strong>
+          </div>
+        </div>
       </div>
 
       {/* Modals */}

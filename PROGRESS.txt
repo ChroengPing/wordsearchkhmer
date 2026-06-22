@@ -319,3 +319,42 @@ STILL PENDING / NEXT TIME:
 - Old files (home.html, index-en.html, engine.js, data-km.js, data-en.js, styles.css, script.js)
   can be deleted once React version is confirmed working on GitHub Pages
 ===========================================
+
+===========================================
+DATE: 2026-06-22
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY (continued session):
+- Nimith reviewed all logic code and fixed 4 bugs:
+    1. GameBoard.jsx: onPointerUp was reading stale React state for the selection path —
+       fixed by adding a selectingRef that always holds the current path
+    2. GamePage.jsx: category select showed wrong value in custom mode (catIdx=-1) — fixed
+    3. GamePage.jsx: admin handlers were double-writing to sessionStorage — cleaned up
+    4. WinModal.jsx: XP progress bar was hardcoded to 78% — now uses actual XP value
+- Nimith replaced all emoji icons with Lucide React SVG icons (npm install lucide-react):
+    House, CircleHelp, Volume2/VolumeX, Sun/Moon, Lock/Crown, Pencil,
+    Lightbulb, Shuffle, RotateCcw, Download, Printer, Flame, Coins, Play, Star
+- Nimith overhauled the home page language switcher:
+    - Old: flag emoji 🇬🇧 button that jumped straight to the English game
+    - New: KH/EN pill toggle switch that switches the home page between Khmer and English,
+      showing the correct categories, progress dots, and star counts for each language
+- Nimith added a Settings dropdown menu (gear icon) to both the home page and game page:
+    - Navigate section: Home, Khmer Game, English Game (active page highlighted)
+    - Settings section: Sound toggle (On/Off badge), Light/Dark mode, Admin login/logout
+    - Tools section (game only): How to play, Custom words
+    - Reset all progress (home only, at bottom in red)
+    - Clicking outside the dropdown closes it
+    - Header is now much cleaner: only KH/EN switch + gear icon
+
+DECISIONS MADE:
+- Settings menu uses gear icon (Settings from Lucide), opens as an absolute-positioned panel
+- KH/EN switch stays visible in the header on both pages as primary nav control
+- Reset progress moved from footer button into the Settings menu
+
+STILL PENDING / NEXT TIME:
+- Enable GitHub Pages: repo Settings → Pages → Source → GitHub Actions (one-time)
+- Commit and push to trigger first auto-deploy
+- Verify Khmer words marked // VERIFY in src/data/lang-km.js
+- Delete old unused files once GitHub Pages deploy is confirmed working:
+  home.html, index-en.html, engine.js, data-km.js, data-en.js, styles.css, script.js
+===========================================

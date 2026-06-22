@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GameLang as kmLang, CATEGORIES } from '../data/lang-km'
+import { GameLang as kmLang, CATEGORIES as kmCats } from '../data/lang-km'
+import { GameLang as enLang, CATEGORIES as enCats } from '../data/lang-en'
 import { Sound } from '../engine/sound'
 import AdminModal from './AdminModal'
+import SettingsMenu from './SettingsMenu'
+import { Play } from 'lucide-react'
 
-const LANG_ID = 'km'
-
-function loadProgress() {
+function loadProgress(langId) {
   try {
-    const cs = new Set(JSON.parse(localStorage.getItem(`ws_cleared_${LANG_ID}`) || '[]'))
-    const sm = JSON.parse(localStorage.getItem(`ws_stars_${LANG_ID}`) || '{}')
+    const cs = new Set(JSON.parse(localStorage.getItem(`ws_cleared_${langId}`) || '[]'))
+    const sm = JSON.parse(localStorage.getItem(`ws_stars_${langId}`) || '{}')
     return { clearedSet: cs, starsMap: sm }
   } catch(e) { return { clearedSet: new Set(), starsMap: {} } }
 }
@@ -25,12 +26,21 @@ function StarsDisplay({ stars }) {
 }
 
 export default function HomePage() {
-  const navigate = useNavigate()
-  const [progress, setProgress] = useState(loadProgress)
-  const [adminOn,  setAdminOn]  = useState(() => sessionStorage.getItem('ws_admin') === '1')
+  const navigate   = useNavigate()
+  const [lang,      setLang]      = useState('km')
+  const [progress,  setProgress]  = useState(() => loadProgress('km'))
+  const [adminOn,   setAdminOn]   = useState(() => sessionStorage.getItem('ws_admin') === '1')
   const [showAdmin, setShowAdmin] = useState(false)
-  const [soundOn,   setSoundOn]  = useState(() => localStorage.getItem('ws_sound') !== '0')
-  const [theme,     setTheme]    = useState(() => localStorage.getItem('ws_theme') || 'dark')
+  const [soundOn,   setSoundOn]   = useState(() => localStorage.getItem('ws_sound') !== '0')
+  const [theme,     setTheme]     = useState(() => localStorage.getItem('ws_theme') || 'dark')
+
+  const CATEGORIES = lang === 'km' ? kmCats : enCats
+  const isKhmer    = lang === 'km'
+
+  // Reload progress whenever language changes
+  useEffect(() => {
+    setProgress(loadProgress(lang))
+  }, [lang])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-bs-theme', theme)
@@ -44,11 +54,11 @@ export default function HomePage() {
 
   function playCategory(catId) {
     try { sessionStorage.setItem('ws_startCat', catId) } catch(e) {}
-    navigate('/play/km')
+    navigate(isKhmer ? '/play/km' : '/play/en')
   }
 
   function getLastCat() {
-    return localStorage.getItem(`ws_lastCat_${LANG_ID}`) || CATEGORIES[0].id
+    return localStorage.getItem(`ws_lastCat_${lang}`) || CATEGORIES[0].id
   }
 
   function handleAdminLogin() {
@@ -63,15 +73,15 @@ export default function HomePage() {
   function resetProgress() {
     if (!window.confirm('Reset ALL progress for both Khmer and English? This cannot be undone.')) return
     Object.keys(localStorage).filter(k => k.startsWith('ws_')).forEach(k => localStorage.removeItem(k))
-    setProgress(loadProgress())
+    setProgress(loadProgress(lang))
   }
 
   const { clearedSet, starsMap } = progress
-  const totalLevels   = CATEGORIES.length * 5
-  const totalStars    = CATEGORIES.length * 5 * 3
-  const clearedCount  = clearedSet.size
-  const earnedStars   = Object.values(starsMap).reduce((s, v) => s + v, 0)
-  const catsDone      = CATEGORIES.filter(c => [0,1,2,3,4].every(l => clearedSet.has(`${c.id}-${l}`))).length
+  const totalLevels  = CATEGORIES.length * 5
+  const totalStars   = CATEGORIES.length * 5 * 3
+  const clearedCount = clearedSet.size
+  const earnedStars  = Object.values(starsMap).reduce((s, v) => s + v, 0)
+  const catsDone     = CATEGORIES.filter(c => [0,1,2,3,4].every(l => clearedSet.has(`${c.id}-${l}`))).length
 
   return (
     <>
@@ -81,27 +91,27 @@ export default function HomePage() {
         <header className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
           <div>
             <h1 className="brand-title h3 mb-0">
-              <span className="brand-accent">ល្បែង</span>រកពាក្យខ្មែរ
+              {isKhmer
+                ? <><span className="brand-accent">ល្បែង</span>រកពាក្យខ្មែរ</>
+                : <><span className="brand-accent">Word</span> Search Game</>}
             </h1>
-            <small className="text-secondary">Khmer Word Search</small>
+            <small className="text-secondary">
+              {isKhmer ? 'Khmer Word Search' : 'English · drag to find each word'}
+            </small>
           </div>
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <button className="btn btn-outline-secondary icon-btn" title="English version"
-                    onClick={() => navigate('/play/en')}>🇬🇧</button>
-            <button className={`btn btn-outline-secondary icon-btn${soundOn?'':' muted-on'}`}
-                    title="Sound on/off" onClick={() => setSoundOn(v => !v)}>
-              {soundOn ? '🔊' : '🔇'}
-            </button>
-            <button className="btn btn-outline-secondary icon-btn" title="Light/Dark"
-                    onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <button
-              className={`btn icon-btn${adminOn ? ' btn-warning text-dark' : ' btn-outline-secondary'}`}
-              title={adminOn ? 'Admin mode — click to logout' : 'Admin login'}
-              onClick={adminOn ? handleAdminLogout : () => setShowAdmin(true)}>
-              {adminOn ? '👑' : '🔐'}
-            </button>
+          <div className="d-flex align-items-center gap-2">
+            <div className="lang-switch">
+              <span className={`lang-switch-opt${isKhmer ? ' active' : ''}`}
+                    onClick={() => setLang('km')}>KH</span>
+              <span className={`lang-switch-opt${!isKhmer ? ' active' : ''}`}
+                    onClick={() => setLang('en')}>EN</span>
+            </div>
+            <SettingsMenu
+              soundOn={soundOn}    onToggleSound={() => setSoundOn(v => !v)}
+              theme={theme}        onToggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+              adminOn={adminOn}    onAdminClick={adminOn ? handleAdminLogout : () => setShowAdmin(true)}
+              onResetProgress={resetProgress}
+            />
           </div>
         </header>
 
@@ -126,17 +136,18 @@ export default function HomePage() {
             </div>
           </div>
           <div className="col-6 col-md-3 d-flex align-items-stretch">
-            <button className="btn btn-accent w-100" style={{ borderRadius:18 }}
+            <button className="btn btn-accent w-100 d-flex align-items-center justify-content-center gap-2"
+                    style={{ borderRadius:18 }}
                     onClick={() => playCategory(getLastCat())}>
-              ▶ Continue
+              <Play size={16} fill="currentColor" /> Continue
             </button>
           </div>
         </div>
 
         {/* Category grid */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(175px,1fr))', gap:'1rem' }}>
-          {CATEGORIES.map((cat, ci) => {
-            const catStars  = [0,1,2,3,4].reduce((s,l) => s + (starsMap[`${cat.id}-${l}`]||0), 0)
+          {CATEGORIES.map((cat) => {
+            const catStars   = [0,1,2,3,4].reduce((s,l) => s + (starsMap[`${cat.id}-${l}`]||0), 0)
             const catCleared = [0,1,2,3,4].filter(l => clearedSet.has(`${cat.id}-${l}`)).length
             const pct = catCleared / 5 * 100
             return (
@@ -145,7 +156,10 @@ export default function HomePage() {
                   <div className="d-flex align-items-center gap-2 mb-2">
                     <span style={{ fontSize:'1.6rem' }}>{cat.icon}</span>
                     <div style={{ minWidth:0 }}>
-                      <div className="fw-bold" style={{ fontSize:'.9rem', fontFamily:'var(--kh-font)' }}>
+                      <div className="fw-bold" style={{
+                        fontSize:'.9rem',
+                        fontFamily: isKhmer ? 'var(--kh-font)' : 'inherit',
+                      }}>
                         {cat.name}
                       </div>
                       <div className="text-secondary" style={{ fontSize:'.7rem' }}>{cat.en}</div>
@@ -183,9 +197,11 @@ export default function HomePage() {
                       {catCleared}/5 · ⭐{catStars}
                     </span>
                   </div>
-                  <button className="btn btn-accent btn-sm w-100" style={{ borderRadius:12 }}
+                  <button className="btn btn-accent btn-sm w-100 d-flex align-items-center justify-content-center gap-1"
+                          style={{ borderRadius:12 }}
                           onClick={() => playCategory(cat.id)}>
-                    ▶ លេង Play
+                    <Play size={14} fill="currentColor" />
+                    {isKhmer ? 'លេង Play' : 'Play'}
                   </button>
                 </div>
               </div>
@@ -197,12 +213,6 @@ export default function HomePage() {
           <div>Designed &amp; Developed by <strong style={{ color:'var(--bs-body-color)' }}>Chroeng Ping</strong>
             <span className="mx-1" style={{ opacity:.4 }}>&amp;</span>
             <strong style={{ color:'var(--bs-body-color)' }}>Nimith</strong>
-          </div>
-          <div className="mt-3">
-            <button className="btn btn-sm btn-outline-secondary" style={{ opacity:.4, fontSize:'.72rem' }}
-                    onClick={resetProgress}>
-              Reset all progress
-            </button>
           </div>
         </footer>
       </div>

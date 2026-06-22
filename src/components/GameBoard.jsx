@@ -15,9 +15,10 @@ function linePath(sr, sc, r, c) {
 }
 
 export default function GameBoard({ puzzle, foundSet, hintCells, onPathComplete, shakeKey, GameLang }) {
-  const boardRef    = useRef()
-  const dragging    = useRef(false)
-  const startRC     = useRef(null)
+  const boardRef     = useRef()
+  const dragging     = useRef(false)
+  const startRC      = useRef(null)
+  const selectingRef = useRef([])   // always current; useState lags by one render
   const [selecting, setSelecting] = useState([])
   const [shaking,   setShaking]   = useState(false)
 
@@ -62,6 +63,7 @@ export default function GameBoard({ puzzle, foundSet, hintCells, onPathComplete,
     dragging.current = true
     const r = +cell.dataset.r, c = +cell.dataset.c
     startRC.current = [r, c]
+    selectingRef.current = [[r, c]]
     setSelecting([[r, c]])
   }
 
@@ -71,13 +73,14 @@ export default function GameBoard({ puzzle, foundSet, hintCells, onPathComplete,
     if (!pt) return
     const [sr, sc] = startRC.current
     const path = linePath(sr, sc, pt.r, pt.c)
-    if (path) setSelecting(path)
+    if (path) { selectingRef.current = path; setSelecting(path) }
   }
 
   function onPointerUp() {
     if (!dragging.current) return
     dragging.current = false
-    const path = [...selecting]
+    const path = [...selectingRef.current]
+    selectingRef.current = []
     setSelecting([])
     startRC.current = null
     if (path.length >= 2) onPathComplete(path)

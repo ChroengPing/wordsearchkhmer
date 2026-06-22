@@ -57,7 +57,7 @@ export const CATEGORIES = [
     {kh:'ដំរី',en:'elephant'},{kh:'ទន្សាយ',en:'rabbit'},{kh:'ក្រពើ',en:'crocodile'},
     {kh:'កណ្ដុរ',en:'rat'},{kh:'ពពែ',en:'goat'},{kh:'ក្របី',en:'buffalo'},
     {kh:'ខ្លា',en:'tiger'},{kh:'ជ្រូក',en:'pig'},{kh:'មាន់',en:'chicken'},
-    {kh:'ត្រី',en:'fish'},{kh:'កែប',en:'frog'},{kh:'ពស់',en:'snake'},
+    {kh:'ត្រី',en:'fish'},{kh:'កង្កែប',en:'frog'},{kh:'ពស់',en:'snake'},
   ]},
   { id: 'nature', icon: '🌳', name: 'ធម្មជាតិ', en: 'Nature', words: [
     {kh:'ទន្លេ',en:'river'},{kh:'សមុទ្រ',en:'sea'},{kh:'ដើមឈើ',en:'tree'},
@@ -69,7 +69,7 @@ export const CATEGORIES = [
     {kh:'ក្រហម',en:'red'},{kh:'លឿង',en:'yellow'},{kh:'បៃតង',en:'green'},
     {kh:'ខៀវ',en:'blue'},{kh:'ត្នោត',en:'brown'},{kh:'ប្រផេះ',en:'grey'},
     {kh:'ពណ៌ស',en:'white'},{kh:'ខ្មៅ',en:'black'},{kh:'ផ្កាឈូក',en:'pink'},
-    {kh:'លឿងទុំ',en:'orange'},{kh:'ស្វាយ',en:'purple'},
+    {kh:'លឿងទុំ',en:'orange'},{kh:'ពណ៌ស្វាយ',en:'purple'},
   ]},
   { id: 'food', icon: '🍚', name: 'អាហារ', en: 'Food', words: [
     {kh:'បាយ',en:'rice'},{kh:'នំបុ័ង',en:'bread'},{kh:'សាច់',en:'meat'},
@@ -105,12 +105,12 @@ export const CATEGORIES = [
     {kh:'ត្រកួន',en:'morning glory'},{kh:'ស្ពៃ',en:'cabbage'},{kh:'ការ៉ុត',en:'carrot'},
     {kh:'ត្រសក់',en:'cucumber'},{kh:'ខ្ទឹមស',en:'garlic'},{kh:'ខ្ទឹមក្រហម',en:'shallot'},
     {kh:'ដំឡូង',en:'potato'},{kh:'ប៉េងប៉ោះ',en:'tomato'},{kh:'ត្រប់',en:'eggplant'},
-    {kh:'ល្ពៅ',en:'pumpkin'},{kh:'ខ្ទឹម',en:'onion'},{kh:'ម្ទេស',en:'chili'},
+    {kh:'ល្ពៅ',en:'pumpkin'},{kh:'ខ្ទឹមបារាំង',en:'onion'},{kh:'ម្ទេស',en:'chili'},
   ]},
   { id: 'weather', icon: '🌤️', name: 'អាកាសធាតុ', en: 'Weather', words: [
     {kh:'ភ្លៀង',en:'rain'},{kh:'ផ្គរ',en:'thunder'},{kh:'ត្រជាក់',en:'cold'},
     {kh:'ក្ដៅ',en:'hot'},{kh:'ខ្យល់',en:'wind'},{kh:'ពពក',en:'cloud'},
-    {kh:'ព្រះអាទិត្យ',en:'sun'},{kh:'ទឹកកក',en:'ice'},{kh:'ធូលី',en:'dust'},
-    {kh:'ឧតុនិយម',en:'climate'},
+    {kh:'ឥន្ទ្រធនូ',en:'rainbow'},{kh:'ទឹកកក',en:'ice'},{kh:'ធូលី',en:'dust'},
+    {kh:'ចន្ទ',en:'moon'},
   ]},
 ]
