@@ -272,8 +272,19 @@ textarea.kh { font-family:var(--kh-font); font-size:1.1rem; }
 #actionBtns .btn { font-size:.82rem; padding:.38rem .72rem; min-height:36px; }
 
 @media (max-width:575px) {
-  .stat { min-width:68px; padding:.35rem .5rem; }
-  .stat .value { font-size:1.05rem; }
+  /* Compact stats */
+  .stat { min-width:56px; padding:.28rem .4rem; }
+  .stat .label { font-size:.58rem; }
+  .stat .value { font-size:.95rem; }
+  .pebble { padding:.22rem .45rem; font-size:.78rem; gap:3px; }
+
+  /* Action buttons — smaller, wrap tightly */
+  #actionBtns { gap:.3rem !important; }
+  #actionBtns .btn { font-size:.75rem; padding:.3rem .55rem; min-height:32px; }
+
+  /* Hide Download & Print on mobile — not useful without a printer */
+  #actionBtns .btn-download,
+  #actionBtns .btn-print { display:none !important; }
 }
 
 /* Mobile word strip */
@@ -286,7 +297,7 @@ textarea.kh { font-family:var(--kh-font); font-size:1.1rem; }
 .mobile-wordstrip::-webkit-scrollbar { display:none; }
 
 @media (max-width:991px) {
-  .board-wrap { width:min(94vw,90vh); }
+  .board-wrap { width:100%; }
   .sidebar-col .card-body { padding:.85rem; }
 }
 

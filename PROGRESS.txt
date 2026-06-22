@@ -358,3 +358,44 @@ STILL PENDING / NEXT TIME:
 - Delete old unused files once GitHub Pages deploy is confirmed working:
   home.html, index-en.html, engine.js, data-km.js, data-en.js, styles.css, script.js
 ===========================================
+
+===========================================
+DATE: 2026-06-22
+CHANGED BY: Nimith
+-------------------------------------------
+DONE TODAY (second session):
+- Nimith fixed print layout to fit on one page:
+    - Added a print-only Score box (blank for students to fill) in the top-right of the header
+    - Hid level pill, time, coins, streak, and all buttons in print
+    - Word list now prints above the board using flexbox order
+    - Creator credit (Chroeng Ping & Nimith) prints at the bottom of the same page
+    - Used @page { size: A4 portrait; margin: 1cm } to control page size
+    - Board set to width: 100% in print so it fills the page with no empty gap
+    - Increased font sizes for print: header 1.5rem, word chips 1rem bold, board letters 1.1rem bold
+    - Score box enlarged to match header proportions
+    - Footer/credit text enlarged (1rem category, 0.88rem names)
+    - Word list heading also sized up to 1rem bold
+
+- Nimith corrected Khmer word errors in src/data/lang-km.js:
+    - Animals: "កែប" → "កង្កែប" (correct word for frog)
+    - Colors: "ស្វាយ" → "ពណ៌ស្វាយ" (purple — avoids clash with mango word in Fruits)
+    - Vegetables: "ខ្ទឹម" (labeled onion but means garlic) → "ខ្ទឹមបារាំង" (onion)
+    - Weather: removed "ឧតុនិយម" (meteorology, wrong) and duplicate "ព្រះអាទិត្យ" (already in Nature)
+      → replaced with "ឥន្ទ្រធនូ" (rainbow) and "ចន្ទ" (moon)
+
+- Nimith improved mobile layout:
+    - Subtitle ("Khmer Word Search · drag across...") hidden on phones (d-none d-md-block)
+    - Stats (Score, Time, coins, streak) made more compact on small screens
+    - Download and Print buttons hidden on mobile (useless without printer)
+    - Board changed from vw-based width to width:100% so it matches the word strip and selects
+    - Row gutter removed on mobile (g-0 g-lg-4) so all elements align edge-to-edge like the header
+
+DECISIONS MADE:
+- Print uses visibility:hidden on score value (not display:none) so the box stays but is blank
+- Board on mobile uses width:100% of its column — no vw override
+- Download and Print buttons hidden on mobile via CSS class (.btn-download, .btn-print)
+
+STILL PENDING / NEXT TIME:
+- Enable GitHub Pages: repo Settings → Pages → Source → GitHub Actions (one-time)
+- Commit and push to trigger first auto-deploy
+===========================================

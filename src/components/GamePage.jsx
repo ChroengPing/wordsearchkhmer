@@ -204,7 +204,7 @@ export default function GamePage({ GameLang, CATEGORIES }) {
               <span className="brand-accent">{isKhmer ? 'ល្បែង' : 'Word'}</span>
               {isKhmer ? 'រកពាក្យខ្មែរ' : ' Search Game'}
             </h1>
-            <small className="text-secondary">
+            <small className="text-secondary d-none d-md-block">
               {isKhmer ? 'Khmer Word Search · drag across the letters to find each word'
                        : 'Drag across the letters to find each word'}
             </small>
@@ -231,7 +231,7 @@ export default function GamePage({ GameLang, CATEGORIES }) {
 
         {/* TWO-COLUMN PLAY AREA */}
         <div className="play-shell">
-        <div className="row g-4 align-items-start w-100">
+        <div className="row g-0 g-lg-4 align-items-start w-100">
 
           {/* LEFT: Board */}
           <div className="col-12 col-lg-7 order-2 order-lg-1">
@@ -265,11 +265,11 @@ export default function GamePage({ GameLang, CATEGORIES }) {
               <button className="btn btn-outline-danger d-flex align-items-center gap-1" onClick={game.restart}>
                 <RotateCcw size={16} /> {isKhmer ? 'ចាប់ថ្មី ' : ''}Restart
               </button>
-              <button className="btn btn-outline-success d-flex align-items-center gap-1"
+              <button className="btn btn-outline-success btn-download d-flex align-items-center gap-1"
                       onClick={() => downloadPuzzleImage(state.puzzle, state.foundSet, cat)}>
                 <Download size={16} /> Image
               </button>
-              <button className="btn btn-outline-secondary d-flex align-items-center gap-1" onClick={() => window.print()}>
+              <button className="btn btn-outline-secondary btn-print d-flex align-items-center gap-1" onClick={() => window.print()}>
                 <Printer size={16} /> Print
               </button>
             </div>
