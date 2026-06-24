@@ -195,7 +195,7 @@ export default function GamePage({ GameLang, CATEGORIES }) {
     <>
       <Confetti active={confetti} />
 
-      <div className="container py-3 py-md-4" style={{ maxWidth: 1080 }}>
+      <div className="container py-3 py-md-4" style={{ maxWidth: 1400 }}>
 
         {/* HEADER */}
         <header className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">

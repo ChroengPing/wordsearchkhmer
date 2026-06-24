@@ -58,12 +58,14 @@ export const CATEGORIES = [
     {kh:'កណ្ដុរ',en:'rat'},{kh:'ពពែ',en:'goat'},{kh:'ក្របី',en:'buffalo'},
     {kh:'ខ្លា',en:'tiger'},{kh:'ជ្រូក',en:'pig'},{kh:'មាន់',en:'chicken'},
     {kh:'ត្រី',en:'fish'},{kh:'កង្កែប',en:'frog'},{kh:'ពស់',en:'snake'},
+    {kh:'ឆ្កែ',en:'dog'},{kh:'ឆ្មា',en:'cat'},{kh:'ស្វា',en:'monkey'},
   ]},
   { id: 'nature', icon: '🌳', name: 'ធម្មជាតិ', en: 'Nature', words: [
     {kh:'ទន្លេ',en:'river'},{kh:'សមុទ្រ',en:'sea'},{kh:'ដើមឈើ',en:'tree'},
     {kh:'ស្លឹក',en:'leaf'},{kh:'ផ្កាយ',en:'star'},{kh:'ខ្យល់',en:'wind'},
     {kh:'ព្រះអាទិត្យ',en:'sun'},{kh:'ភ្នំ',en:'mountain'},{kh:'ព្រៃ',en:'forest'},
     {kh:'ទឹកជ្រោះ',en:'waterfall'},{kh:'ដី',en:'soil'},{kh:'ថ្ម',en:'rock'},
+    {kh:'ផ្កា',en:'flower'},{kh:'ស្ទឹង',en:'stream'},{kh:'រលក',en:'wave'},
   ]},
   { id: 'colors', icon: '🎨', name: 'ពណ៌', en: 'Colors', words: [
     {kh:'ក្រហម',en:'red'},{kh:'លឿង',en:'yellow'},{kh:'បៃតង',en:'green'},
@@ -76,24 +78,28 @@ export const CATEGORIES = [
     {kh:'បន្លែ',en:'vegetable'},{kh:'ផ្លែឈើ',en:'fruit'},{kh:'ទឹក',en:'water'},
     {kh:'អំបិល',en:'salt'},{kh:'ស្ករ',en:'sugar'},{kh:'ប្រេង',en:'oil'},
     {kh:'សម្លរ',en:'soup'},{kh:'ស៊ុប',en:'broth'},{kh:'មីសុប',en:'noodle soup'},
+    {kh:'ពង',en:'egg'},{kh:'ទឹកដោះ',en:'milk'},{kh:'នំ',en:'cake'},
   ]},
   { id: 'school', icon: '🏫', name: 'សាលារៀន', en: 'School', words: [
     {kh:'សៀវភៅ',en:'book'},{kh:'ប៊ិច',en:'pen'},{kh:'សាលា',en:'school'},
     {kh:'សិស្ស',en:'student'},{kh:'ខ្មៅដៃ',en:'pencil'},{kh:'បន្ទប់',en:'room'},
     {kh:'មេរៀន',en:'lesson'},{kh:'ក្រដាស',en:'paper'},{kh:'កៅអី',en:'chair'},
     {kh:'គ្រូ',en:'teacher'},{kh:'តុ',en:'desk'},{kh:'ក្ដារខៀន',en:'blackboard'},
+    {kh:'ជ័រ',en:'eraser'},{kh:'ស្ទង់',en:'ruler'},{kh:'ថ្នាំការ',en:'crayon'},
   ]},
   { id: 'family', icon: '👨‍👩‍👧', name: 'គ្រួសារ', en: 'Family', words: [
     {kh:'ឪពុក',en:'father'},{kh:'ម្ដាយ',en:'mother'},{kh:'បងប្រុស',en:'older brother'},
     {kh:'បងស្រី',en:'older sister'},{kh:'ជីដូន',en:'grandmother'},{kh:'ជីតា',en:'grandfather'},
     {kh:'កូនប្រុស',en:'son'},{kh:'កូនស្រី',en:'daughter'},{kh:'ប្អូនប្រុស',en:'younger brother'},
     {kh:'ប្អូនស្រី',en:'younger sister'},{kh:'ប្ដី',en:'husband'},{kh:'ប្រពន្ធ',en:'wife'},
+    {kh:'ពូ',en:'uncle'},{kh:'មីង',en:'aunt'},{kh:'ចៅ',en:'grandchild'},
   ]},
   { id: 'body', icon: '🧍', name: 'រាងកាយ', en: 'Body', words: [
     {kh:'ក្បាល',en:'head'},{kh:'ភ្នែក',en:'eye'},{kh:'ច្រមុះ',en:'nose'},
     {kh:'ត្រចៀក',en:'ear'},{kh:'មាត់',en:'mouth'},{kh:'ស្មា',en:'shoulder'},
     {kh:'ដៃ',en:'hand'},{kh:'ជើង',en:'foot'},{kh:'ចង្កេះ',en:'waist'},
-    {kh:'ក',en:'neck'},{kh:'ខ្នង',en:'back'},
+    {kh:'ក',en:'neck'},{kh:'ខ្នង',en:'back'},{kh:'ក្រពះ',en:'stomach'},
+    {kh:'ធ្មេញ',en:'teeth'},{kh:'ភ្លៅ',en:'thigh'},{kh:'ម្រាមដៃ',en:'finger'},
   ]},
   { id: 'fruits', icon: '🍎', name: 'ផ្លែឈើ', en: 'Fruits', words: [
     {kh:'ស្វាយ',en:'mango'},{kh:'ចេក',en:'banana'},{kh:'ដូង',en:'coconut'},
@@ -111,6 +117,7 @@ export const CATEGORIES = [
     {kh:'ភ្លៀង',en:'rain'},{kh:'ផ្គរ',en:'thunder'},{kh:'ត្រជាក់',en:'cold'},
     {kh:'ក្ដៅ',en:'hot'},{kh:'ខ្យល់',en:'wind'},{kh:'ពពក',en:'cloud'},
     {kh:'ឥន្ទ្រធនូ',en:'rainbow'},{kh:'ទឹកកក',en:'ice'},{kh:'ធូលី',en:'dust'},
-    {kh:'ចន្ទ',en:'moon'},
+    {kh:'ចន្ទ',en:'moon'},{kh:'ព្រឹល',en:'fog'},{kh:'ភ្លឺ',en:'bright'},
+    {kh:'ព្រះអាទិត្យ',en:'sun'},{kh:'ភ្លើង',en:'lightning'},{kh:'ខ្យល់ព្យុះ',en:'storm'},
   ]},
 ]

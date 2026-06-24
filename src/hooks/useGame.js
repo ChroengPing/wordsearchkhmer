@@ -19,9 +19,9 @@ const shuffle = a => {
   return b
 }
 
-function sizeForLevel(lvl)  { return 8 + lvl }
+function sizeForLevel(lvl)  { return [8, 9, 11, 12, 14][lvl] ?? 14 }
 function dirsForLevel(lvl)  { return lvl < 2 ? 'easy' : lvl < 4 ? 'diag' : 'hard' }
-function wordCountForLevel(lvl, bankLen) { return Math.min(bankLen, 5 + lvl) }
+function wordCountForLevel(lvl, bankLen) { return Math.min(bankLen, [5, 7, 9, 11, bankLen][lvl] ?? bankLen) }
 
 const initState = {
   catIdx: 0, lvlIdx: 0,

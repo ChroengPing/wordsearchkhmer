@@ -1,7 +1,9 @@
 const DIRS = {
   easy: [[0,1],[1,0]],
   diag: [[0,1],[1,0],[1,1],[1,-1]],
-  hard: [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],
+  hard: [[0,1],[1,0],[1,1],[1,-1]],
+  // Reversed directions removed — Khmer reads left-to-right/top-to-bottom only.
+  // Words are never placed backwards so letters always appear in the correct reading order.
 }
 
 const shuffle = a => {
